@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import { authenticate, registerUser, toPublicUser } from '../data/users';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { validateAuth } from '../utils/validation';
+import useForm from '../hooks/useForm';
 import { showAlert } from '../utils/alert';
 
 const EMPTY_FORM = { fullName: '', email: '', password: '', confirmPassword: '' };
@@ -26,48 +27,29 @@ export default function LoginScreen({ navigation }) {
 
   // UI mode: 'login' or 'signup'
   const [mode, setMode] = useState('login');
-  // Controlled inputs
-  const [values, setValues] = useState(EMPTY_FORM);
   const [role, setRole] = useState('customer');
-  // Separate pieces of UI state
-  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isSignup = mode === 'signup';
 
-  const handleChange = (field) => (text) => {
-    setValues((prev) => ({ ...prev, [field]: text }));
-    // Clear the error of this field as soon as the user edits it.
-    if (errors[field]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
+  // Form values, errors, submit flag and validation now come from useForm.
+  const validate = useCallback((v) => validateAuth(v, mode), [mode]);
+  const { values, errors, handleChange, handleSubmit, reset, isSubmitting } = useForm(EMPTY_FORM, validate);
 
   const switchMode = () => {
     setMode((m) => (m === 'login' ? 'signup' : 'login'));
-    setErrors({});
-    setValues((prev) => ({ ...EMPTY_FORM, email: prev.email }));
+    reset({ ...EMPTY_FORM, email: values.email });
   };
 
-  const handleSubmit = async () => {
-    const validationErrors = validateAuth(values, mode);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    setIsSubmitting(true);
+  const submit = handleSubmit(async (formValues) => {
     try {
       let user;
       if (isSignup) {
-        const created = await registerUser({ ...values, role }, accounts);
+        const created = await registerUser({ ...formValues, role }, accounts);
         register(created);
         user = toPublicUser(created);
       } else {
-        user = await authenticate(values.email, values.password, accounts);
+        user = await authenticate(formValues.email, formValues.password, accounts);
       }
       // Store the user globally, then replace the auth stack with the app.
       // MainTabs opens on Menu for customers and Dashboard for managers.
@@ -75,10 +57,8 @@ export default function LoginScreen({ navigation }) {
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (e) {
       showAlert(isSignup ? 'Signup failed' : 'Login failed', e.message);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+  });
 
   const renderField = (field, label, props = {}) => (
     <View style={styles.field}>
@@ -114,12 +94,14 @@ export default function LoginScreen({ navigation }) {
           })}
           {renderField('password', 'Password', {
             placeholder: 'At least 8 characters, 1 digit',
+            onSubmitEditing: submit,
             secureTextEntry: !showPassword,
             autoCapitalize: 'none',
           })}
           {isSignup &&
             renderField('confirmPassword', 'Confirm password', {
               placeholder: 'Repeat your password',
+              onSubmitEditing: submit,
               secureTextEntry: !showPassword,
               autoCapitalize: 'none',
             })}
@@ -148,7 +130,7 @@ export default function LoginScreen({ navigation }) {
           )}
 
           <Pressable
-            onPress={handleSubmit}
+            onPress={submit}
             disabled={isSubmitting}
             style={[styles.button, isSubmitting && styles.buttonDisabled]}
           >

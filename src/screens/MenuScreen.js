@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { CART_ACTIONS } from '../reducers/cartReducer';
 import MenuItemCard from '../components/MenuItemCard';
+import useDebounce from '../hooks/useDebounce';
 
 const ALL = 'All';
 const SEARCH_DEBOUNCE_MS = 400;
@@ -52,7 +53,7 @@ export default function MenuScreen({ navigation }) {
 
   // Search state: what is typed vs. what is applied after the debounce.
   const [searchText, setSearchText] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchQuery = useDebounce(searchText, SEARCH_DEBOUNCE_MS);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -61,7 +62,6 @@ export default function MenuScreen({ navigation }) {
   const requestRef = useRef(null);
   const searchInputRef = useRef(null); // the TextInput element
   const listRef = useRef(null); // the FlatList element
-  const debounceTimerRef = useRef(null); // id of the pending debounce timeout
   const previousQueryRef = useRef(''); // last query added to the recent list
 
   // Render counter. Mutating ref.current does NOT trigger a re-render: a ref
@@ -95,9 +95,6 @@ export default function MenuScreen({ navigation }) {
     loadMenu();
     return () => requestRef.current?.cancel();
   }, []);
-
-  // Clear any pending debounce timer when the screen unmounts.
-  useEffect(() => () => clearTimeout(debounceTimerRef.current), []);
 
   // Derived data: the visible list is computed from state, never stored in it.
   // Keeping a separate `filteredItems` state (as in Q4) duplicates information,
@@ -150,41 +147,26 @@ export default function MenuScreen({ navigation }) {
     [quantities, favourites, canOrder, handleAddToCart, handleToggleFavourite]
   );
 
-  const applySearch = (text) => {
-    setSearchQuery(text);
-    const trimmed = text.trim();
-    // The ref remembers the previous query so the same search typed twice in
-    // a row is not added to the recent list again.
-    if (trimmed && trimmed.toLowerCase() !== previousQueryRef.current.toLowerCase()) {
-      previousQueryRef.current = trimmed;
-      setRecentSearches((prev) =>
-        [trimmed, ...prev.filter((t) => t.toLowerCase() !== trimmed.toLowerCase())].slice(
-          0,
-          MAX_RECENT_SEARCHES
-        )
-      );
-    }
-  };
-
-  // Manual debounce: restart a 400 ms timer on every keystroke.
-  const handleSearchChange = (text) => {
-    setSearchText(text);
-    clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => applySearch(text), SEARCH_DEBOUNCE_MS);
-  };
+  // Each applied (debounced) search is remembered. The ref holds the previous
+  // query so the same search twice in a row is not added again.
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed || trimmed.toLowerCase() === previousQueryRef.current.toLowerCase()) return;
+    previousQueryRef.current = trimmed;
+    setRecentSearches((prev) =>
+      [trimmed, ...prev.filter((t) => t.toLowerCase() !== trimmed.toLowerCase())].slice(
+        0,
+        MAX_RECENT_SEARCHES
+      )
+    );
+  }, [searchQuery]);
 
   const clearSearch = () => {
-    clearTimeout(debounceTimerRef.current);
     setSearchText('');
-    setSearchQuery('');
     searchInputRef.current?.focus(); // keep the keyboard open
   };
 
-  const pickRecent = (term) => {
-    clearTimeout(debounceTimerRef.current);
-    setSearchText(term);
-    applySearch(term);
-  };
+  const pickRecent = (term) => setSearchText(term);
 
   const handleScroll = (e) => {
     setShowBackToTop(e.nativeEvent.contentOffset.y > BACK_TO_TOP_OFFSET);
@@ -225,7 +207,7 @@ export default function MenuScreen({ navigation }) {
           ref={searchInputRef}
           style={styles.searchInput}
           value={searchText}
-          onChangeText={handleSearchChange}
+          onChangeText={setSearchText}
           placeholder="Search dishes or ingredients"
           placeholderTextColor={colors.textMuted}
           onFocus={() => setIsSearchFocused(true)}

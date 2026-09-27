@@ -10,10 +10,13 @@ import MenuScreen from '../screens/MenuScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
 import OrderSummaryScreen from '../screens/OrderSummaryScreen';
+import ReservationScreen from '../screens/ReservationScreen';
+import MyReservationsScreen from '../screens/MyReservationsScreen';
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
 const CartStack = createNativeStackNavigator();
+const ReserveStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 const DashboardStack = createNativeStackNavigator();
 
@@ -21,6 +24,7 @@ const TAB_ICONS = {
   DashboardTab: 'speedometer',
   MenuTab: 'restaurant',
   CartTab: 'cart',
+  ReserveTab: 'calendar',
   ProfileTab: 'person-circle',
 };
 
@@ -47,6 +51,15 @@ function CartStackScreen() {
       <CartStack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
       <CartStack.Screen name="OrderSummary" component={OrderSummaryScreen} options={{ title: 'Order Summary' }} />
     </CartStack.Navigator>
+  );
+}
+
+function ReserveStackScreen() {
+  return (
+    <ReserveStack.Navigator>
+      <ReserveStack.Screen name="Reservation" component={ReservationScreen} options={{ title: 'Book a Table' }} />
+      <ReserveStack.Screen name="MyReservations" component={MyReservationsScreen} options={{ title: 'My Reservations' }} />
+    </ReserveStack.Navigator>
   );
 }
 
@@ -99,6 +112,9 @@ export default function MainTabs() {
           component={CartStackScreen}
           options={{ title: 'Cart', tabBarBadge: itemCount > 0 ? itemCount : undefined }}
         />
+      )}
+      {!isManager && (
+        <Tab.Screen name="ReserveTab" component={ReserveStackScreen} options={{ title: 'Reserve' }} />
       )}
       <Tab.Screen name="ProfileTab" component={ProfileStackScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
