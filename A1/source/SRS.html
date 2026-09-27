@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SRS - Restaurant App MVP</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --accent: #e4572e; --ink: #1f1f1f; --muted: #5f5f5f; --line: #e6ddd3; --soft: #fff6ef; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  h1, h2, h3, h4 { font-family: "Segoe UI Semibold", "Segoe UI", Arial, sans-serif; line-height: 1.25; }
+  h1 { font-size: 20pt; margin: 0 0 6pt; }
+  h2 { font-size: 15pt; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 3pt; margin: 22pt 0 8pt; page-break-after: avoid; }
+  h3 { font-size: 12pt; margin: 14pt 0 5pt; page-break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 10pt 0 4pt; page-break-after: avoid; }
+  p { margin: 0 0 7pt; text-align: justify; }
+  ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin-bottom: 2pt; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9.5pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th { background: var(--soft); text-align: left; border: 1px solid var(--line); padding: 5pt 6pt; font-weight: 600; }
+  td { border: 1px solid var(--line); padding: 4pt 6pt; vertical-align: top; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9pt; background: #f4f1ee; padding: 0 2pt; border-radius: 2pt; }
+  .cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+  .cover .tag { color: var(--accent); font-weight: 700; letter-spacing: 2pt; text-transform: uppercase; font-size: 10pt; }
+  .cover h1 { font-size: 30pt; margin: 8pt 0; }
+  .cover .sub { font-size: 14pt; color: var(--muted); margin-bottom: 30pt; }
+  .meta td { border: none; padding: 3pt 0; font-size: 11pt; }
+  .meta td:first-child { color: var(--muted); width: 45mm; }
+  .toc { page-break-after: always; }
+  .toc ol { list-style: none; padding-left: 0; }
+  .toc li { padding: 2pt 0; border-bottom: 1px dotted var(--line); }
+  .toc ol ol { padding-left: 14pt; }
+  .figure { page-break-inside: avoid; margin: 10pt 0 14pt; text-align: center; }
+  .figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--line); }
+  .caption { font-size: 9pt; color: var(--muted); margin-top: 4pt; font-style: italic; }
+  .interview { background: var(--soft); border-left: 3px solid var(--accent); padding: 8pt 10pt; margin: 6pt 0 10pt; }
+  .interview p { margin-bottom: 4pt; }
+  .q { font-weight: 600; }
+  .screen { page-break-inside: avoid; }
+  .screen table td:first-child { width: 30mm; font-weight: 600; background: #fcfaf8; }
+  .shots { display: flex; gap: 6mm; justify-content: center; margin: 4pt 0 8pt; }
+  .shots img { width: 44mm; border: 1px solid var(--line); border-radius: 3pt; }
+  .fr td:first-child { width: 14mm; font-weight: 600; white-space: nowrap; }
+  .pagebreak { page-break-before: always; }
+  .small { font-size: 9pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="tag">Software Requirements Specification</div>
+  <h1>Restaurant App MVP</h1>
+  <div class="sub">Frontend-only React Native prototype: menu browsing, ordering, table reservations and a manager dashboard</div>
+  <table class="meta">
+    <tr><td>Course / Assignment</td><td>Assignment No. 1, Fall 2026</td></tr>
+    <tr><td>Document version</td><td>1.0</td></tr>
+    <tr><td>Product version covered</td><td>Restaurant App MVP 1.0.0 (Expo SDK 57, React Native 0.86)</td></tr>
+    <tr><td>Prepared by</td><td>Student Name / Roll No.</td></tr>
+    <tr><td>Date</td><td>28 September 2026</td></tr>
+    <tr><td>Repository</td><td>github.com/Waqasjan76/Restaurant-App-</td></tr>
+  </table>
+</section>
+
+<section class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li>0. Requirements Elicitation: Self-Interview</li>
+    <li>1. Introduction
+      <ol><li>1.1 Purpose</li><li>1.2 Scope</li><li>1.3 Definitions and Acronyms</li></ol></li>
+    <li>2. Overall Description
+      <ol><li>2.1 User Roles</li><li>2.2 User Stories</li></ol></li>
+    <li>3. Functional Requirements</li>
+    <li>4. Non-Functional Requirements</li>
+    <li>5. Client-Side Data Model (Mock Data)</li>
+    <li>6. UML Diagrams</li>
+    <li>7. MVP Frontend Development (React Native)
+      <ol><li>7.1 Login and Signup Screen</li><li>7.2 Menu Browsing Screen</li><li>7.3 Search and Scroll Controls</li><li>7.4 Profile and Theme Screen</li><li>7.5 Cart Screen</li><li>7.6 Order Summary Screen</li><li>7.7 Table Reservation Screen</li><li>7.8 Order Tracking and Manager Dashboard</li></ol></li>
+    <li>Appendix A: Hooks-to-Screen Traceability</li>
+  </ol>
+</section>
+
+<h2>0. Requirements Elicitation: Self-Interview</h2>
+<p>The requirements in this document come from a "client meeting" held with myself as a potential customer, followed by a short role-play as the restaurant manager. The answers below are the source of the customer user stories in Section 2.2 (marked <b>[I-n]</b>).</p>
+<div class="interview">
+  <p class="q">Q1. When do you usually get frustrated at a restaurant?</p>
+  <p>At lunch time I only have about 45 minutes. I lose ten of them waiting for a menu and another ten waiting for the waiter to take my order. <b>[I-1]</b> I want to see the menu and prices before I arrive.</p>
+  <p class="q">Q2. What would you check first when you open the app?</p>
+  <p>Today's specials and whether a dish is actually available. It is annoying to choose something and then hear "sorry, it's finished". <b>[I-2]</b></p>
+  <p class="q">Q3. How do you look for food?</p>
+  <p>I usually know what I want ("biryani", "chicken"), so I would type it. If I don't know, I browse by starters, mains, desserts and drinks, and sometimes sort by price when I am on a budget. <b>[I-3]</b></p>
+  <p class="q">Q4. What about ordering?</p>
+  <p>I want to add dishes to a cart, change quantities, and write notes like "no onions". I would also use a promo code if the restaurant offers one. <b>[I-4]</b> Before I confirm, I need the full bill with tax and service charge. I don't like surprises at the counter. <b>[I-5]</b></p>
+  <p class="q">Q5. Dine-in or takeaway?</p>
+  <p>Both. Sometimes I sit at a table, sometimes I pick up on the way home, so I need to choose a table or a pickup time. <b>[I-6]</b></p>
+  <p class="q">Q6. After you order?</p>
+  <p>I want to see whether my food is being prepared or is ready, with a timer, so I am not staring at the kitchen door. <b>[I-7]</b></p>
+  <p class="q">Q7. And for weekends with family?</p>
+  <p>I would book a table for 7:00 PM for a specific number of people and see immediately which times are full. I also need to be able to cancel if plans change. <b>[I-8]</b></p>
+  <p class="q">Q8. Anything else that would make you keep the app?</p>
+  <p>Saving favourite dishes, a dark mode for night use, and a simple, fast sign up. <b>[I-9]</b></p>
+  <p class="q">Manager role-play: What would you need?</p>
+  <p>One screen where incoming orders appear instantly so I can move them through the kitchen. I also want to accept or decline table requests, and to change prices or mark a dish as sold out without calling a developer.</p>
+</div>
+
+<h2>1. Introduction</h2>
+<h3>1.1 Purpose</h3>
+<p>This SRS defines the functional and non-functional requirements of the <b>Restaurant App MVP</b>, a mobile application that lets diners browse a restaurant's menu, order food for dine-in or takeaway, reserve tables and track orders. It also lets a restaurant manager handle incoming orders, reservations and the menu. The document covers <b>version 1.0</b> of the MVP, which is a <b>frontend-only</b> React Native (Expo) prototype. All data is mock data held in React state and persisted locally with AsyncStorage.</p>
+<p><b>Intended audience:</b> the course instructor and evaluators (to assess completeness), the developer (as the implementation contract), testers (every functional requirement is written to be testable) and a future backend team (who can use Section 5 as the starting point for an API and database design).</p>
+
+<h3>1.2 Scope</h3>
+<p><b>In scope for version 1.0:</b></p>
+<ul>
+  <li>Login and signup with client-side validation, a mock user store and a role selector (Customer or Manager).</li>
+  <li>Menu browsing by category, with daily-special badges, unavailable items greyed out, pull to refresh and simulated loading and error states.</li>
+  <li>Debounced text search, recent searches, sorting by price or name, favourites and a "Back to top" control.</li>
+  <li>A cart with quantity steppers, per-item special instructions, mock promo codes and a live cart badge.</li>
+  <li>An order summary with subtotal, 5% service charge, 15% sales tax, promo discount and grand total.</li>
+  <li>Order placement as Dine-in (with a table) or Takeaway (with a pickup time).</li>
+  <li>Order tracking with an automatic status timeline and an elapsed-time counter.</li>
+  <li>Table reservation with hourly slots (12:00 to 22:00), live availability, validation, a confirmation modal and cancellation.</li>
+  <li>A profile screen with a light/dark theme applied to the whole app, and logout.</li>
+  <li>A manager dashboard with Incoming Orders, Reservations (accept or decline) and Menu Management (add an item, edit a price, toggle availability).</li>
+  <li>Local persistence of orders, reservations, menu edits, registered accounts and the theme choice.</li>
+</ul>
+<p><b>Out of scope:</b> real payments (the bill is settled at the counter), push notifications, any backend service, database or external API, real authentication (tokens, password hashing, password reset), multi-restaurant or multi-branch support, real-time sync between different devices, delivery and rider tracking, and third-party state management libraries (Redux, MobX, Zustand).</p>
+
+<h3>1.3 Definitions and Acronyms</h3>
+<table>
+  <tr><th style="width:32mm">Term</th><th>Definition in the context of this app</th></tr>
+  <tr><td>SRS</td><td>Software Requirements Specification: this document.</td></tr>
+  <tr><td>MVP</td><td>Minimum Viable Product: the smallest feature set that lets a diner order and book and a manager serve, used to validate the idea.</td></tr>
+  <tr><td>UML</td><td>Unified Modeling Language: the standard notation used for the diagrams in Section 6.</td></tr>
+  <tr><td>Hook</td><td>A React function (<code>useState</code>, <code>useEffect</code>, ...) that lets a function component use state and lifecycle features.</td></tr>
+  <tr><td>Custom Hook</td><td>A developer-written function whose name starts with <code>use</code> and which combines built-in hooks to reuse logic, e.g. <code>useForm</code>, <code>useReservation</code>.</td></tr>
+  <tr><td>Context</td><td>The React Context API, used to share global values (auth, theme, cart, orders) without prop drilling.</td></tr>
+  <tr><td>Provider</td><td>The component that supplies a context value to the part of the tree below it, e.g. <code>&lt;CartProvider&gt;</code>.</td></tr>
+  <tr><td>Reducer</td><td>A pure function <code>(state, action) =&gt; newState</code> used with <code>useReducer</code>, e.g. <code>cartReducer</code>.</td></tr>
+  <tr><td>Action / Dispatch</td><td>An object such as <code>{ type: 'ADD_ITEM', payload }</code> describing a change, and the function that sends it to a reducer.</td></tr>
+  <tr><td>Mock Data</td><td>Hard-coded JavaScript data (users, menu, tables, reservations) standing in for a server response.</td></tr>
+  <tr><td>FlatList</td><td>React Native's virtualised list component. It only renders visible rows, which keeps long menus smooth.</td></tr>
+  <tr><td>AsyncStorage</td><td>A key-value storage module on the device, used here instead of a database.</td></tr>
+  <tr><td>Debounce</td><td>Delaying an action (search) until the input has stopped changing for a set time (400 ms).</td></tr>
+  <tr><td>Memoisation</td><td>Caching a computed value or function between renders (<code>useMemo</code>, <code>useCallback</code>, <code>React.memo</code>).</td></tr>
+  <tr><td>Expo</td><td>A toolchain for building and running React Native apps (Expo Go, emulator or web).</td></tr>
+  <tr><td>Dine-in / Takeaway</td><td>The two order types: eaten at a restaurant table, or collected at a chosen pickup time.</td></tr>
+</table>
+
+<h2>2. Overall Description</h2>
+<h3>2.1 User Roles</h3>
+<table>
+  <tr><th style="width:35mm">Role</th><th>Key Permissions &amp; Goals</th></tr>
+  <tr><td><b>Guest</b> (not logged in)</td><td>Can only see the Login/Signup screen. Can create a Customer or Manager account. Goal: get into the app quickly.</td></tr>
+  <tr><td><b>Customer</b> (Diner)</td><td>Browse, search, sort and favourite menu items; manage a cart; apply promo codes; place Dine-in or Takeaway orders; track own orders and cancel them while Pending; reserve tables and cancel own reservations; view profile; switch theme; log out. Tabs: Menu, Cart, Orders, Reserve, Profile. Goal: order and book with no queues and no bill surprises.</td></tr>
+  <tr><td><b>Restaurant Manager</b></td><td>Everything a guest sees after login, plus the Dashboard tab (hidden from customers): view all orders and move them through Pending, Preparing, Ready, Served or Cancelled; accept or decline reservations; add menu items, edit prices and toggle availability (changes appear on the customer menu immediately); view today's sales and active-order statistics. Cannot place orders. Tabs: Dashboard, Menu, Profile. Goal: digitise the menu and run orders and bookings efficiently.</td></tr>
+</table>
+
+<h3>2.2 User Stories</h3>
+<table>
+  <tr><th style="width:12mm">ID</th><th style="width:22mm">Role</th><th>Story</th><th style="width:15mm">Source</th></tr>
+  <tr><td>US-01</td><td>Customer</td><td>As a customer, I want to browse the menu with prices before I arrive, so that I don't waste my short lunch break waiting for a menu.</td><td>I-1</td></tr>
+  <tr><td>US-02</td><td>Customer</td><td>As a customer, I want daily specials highlighted and sold-out dishes greyed out, so that I only choose food that is actually available.</td><td>I-2</td></tr>
+  <tr><td>US-03</td><td>Customer</td><td>As a customer, I want to search dishes by name and filter or sort by category and price, so that I find what I want in seconds.</td><td>I-3</td></tr>
+  <tr><td>US-04</td><td>Customer</td><td>As a customer, I want to add items to a cart, change quantities and write special instructions, so that my order is exactly right.</td><td>I-4</td></tr>
+  <tr><td>US-05</td><td>Customer</td><td>As a customer, I want to apply a promo code and see the full bill with tax and service charge before confirming, so that there are no surprises at the counter.</td><td>I-4, I-5</td></tr>
+  <tr><td>US-06</td><td>Customer</td><td>As a customer, I want to choose Dine-in with my table or Takeaway with a pickup time, so that the kitchen knows where my food goes.</td><td>I-6</td></tr>
+  <tr><td>US-07</td><td>Customer</td><td>As a customer, I want to track my order status with a timer, so that I know when my food is ready.</td><td>I-7</td></tr>
+  <tr><td>US-08</td><td>Customer</td><td>As a customer, I want to book a table for a given date, time and party size and see which slots are full, so that I don't turn up to a full restaurant.</td><td>I-8</td></tr>
+  <tr><td>US-09</td><td>Customer</td><td>As a customer, I want to cancel a reservation, so that my table is freed when plans change.</td><td>I-8</td></tr>
+  <tr><td>US-10</td><td>Customer</td><td>As a customer, I want to save favourite dishes and use dark mode, so that the app is comfortable to use every day.</td><td>I-9</td></tr>
+  <tr><td>US-11</td><td>Manager</td><td>As a restaurant manager, I want incoming orders to appear instantly with buttons to change their status, so that phone-in orders are replaced by a clear kitchen queue.</td><td>Manager</td></tr>
+  <tr><td>US-12</td><td>Manager</td><td>As a restaurant manager, I want to accept or decline table reservations, so that I can control seating.</td><td>Manager</td></tr>
+  <tr><td>US-13</td><td>Manager</td><td>As a restaurant manager, I want to add new dishes, edit prices and mark items unavailable, so that the digital menu always matches the kitchen.</td><td>Manager</td></tr>
+  <tr><td>US-14</td><td>Manager</td><td>As a restaurant manager, I want a dashboard tab that customers cannot see, so that management functions stay private.</td><td>Manager</td></tr>
+</table>
+
+<h2>3. Functional Requirements</h2>
+<p>Every requirement is testable in the running prototype. The last column shows where it is implemented.</p>
+
+<h4>Module A: Authentication</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-01</td><td>The system shall let the user switch between Login and Signup modes on one screen.</td><td>LoginScreen</td></tr>
+  <tr><td>FR-02</td><td>The system shall reject an email that does not match a valid email format and show the error under the field.</td><td>validation.js</td></tr>
+  <tr><td>FR-03</td><td>The system shall require a password of at least 8 characters containing at least one digit, and (on signup) a matching confirm password.</td><td>validation.js</td></tr>
+  <tr><td>FR-04</td><td>The system shall clear a field's error message as soon as the user edits that field.</td><td>useForm</td></tr>
+  <tr><td>FR-05</td><td>The system shall authenticate against the mock user list after a simulated 1 second delay, showing an ActivityIndicator and disabling the submit button meanwhile.</td><td>users.js, LoginScreen</td></tr>
+  <tr><td>FR-06</td><td>The system shall open the Menu for a Customer and the Dashboard for a Manager after a successful login, and show an Alert with a clear message on failure.</td><td>LoginScreen, MainTabs</td></tr>
+  <tr><td>FR-07</td><td>The system shall log the user out, reset the navigation stack to Login and prevent returning with the Back button.</td><td>ProfileScreen, navigationRef</td></tr>
+</table>
+
+<h4>Module B: Menu</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-08</td><td>The system shall load the menu through a simulated request lasting 1.5 seconds and show a loading indicator, and an error message with a Retry button if the request fails.</td><td>MenuScreen, menu.js</td></tr>
+  <tr><td>FR-09</td><td>The system shall filter items by the selected category chip (All, Starters, Mains, Desserts, Drinks).</td><td>MenuScreen</td></tr>
+  <tr><td>FR-10</td><td>The system shall show a "Daily Special" badge on special items, and show unavailable items greyed out with a disabled Add button.</td><td>MenuItemCard</td></tr>
+  <tr><td>FR-11</td><td>The system shall refresh the menu on pull to refresh and show the number of visible items in the screen header.</td><td>MenuScreen</td></tr>
+  <tr><td>FR-12</td><td>The system shall let the customer mark and unmark a dish as favourite with a heart icon.</td><td>MenuItemCard</td></tr>
+</table>
+
+<h4>Module C: Search</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-13</td><td>The system shall filter dishes by name or description 400 ms after the user stops typing.</td><td>useDebounce</td></tr>
+  <tr><td>FR-14</td><td>The system shall focus the search input when the search icon is tapped, and keep focus when the clear (✕) button empties it.</td><td>MenuScreen (useRef)</td></tr>
+  <tr><td>FR-15</td><td>The system shall show the last five distinct searches as tappable suggestions when the input is focused and empty.</td><td>MenuScreen</td></tr>
+  <tr><td>FR-16</td><td>The system shall sort the list by price low to high, price high to low, or name A to Z.</td><td>MenuScreen (useMemo)</td></tr>
+  <tr><td>FR-17</td><td>The system shall show a "Back to top" button after the list is scrolled more than 300 px, and a friendly empty state when nothing matches.</td><td>MenuScreen</td></tr>
+</table>
+
+<h4>Module D: Cart</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-18</td><td>The system shall add a menu item to the cart from its card, increasing the quantity if it is already in the cart.</td><td>cartReducer</td></tr>
+  <tr><td>FR-19</td><td>The system shall increment and decrement quantities, and remove an item when its quantity reaches zero or when Remove is tapped.</td><td>cartReducer, CartScreen</td></tr>
+  <tr><td>FR-20</td><td>The system shall store a special-instructions note for each cart item.</td><td>cartReducer</td></tr>
+  <tr><td>FR-21</td><td>The system shall accept the codes WELCOME10 (10%), STUDENT15 (15%) and FEAST20 (20%), and reject any other code with an error message.</td><td>promoCodes.js, CartScreen</td></tr>
+  <tr><td>FR-22</td><td>The system shall show a live item-count badge on the Cart tab.</td><td>MainTabs</td></tr>
+</table>
+
+<h4>Module E: Reservation</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-23</td><td>The system shall offer hourly time slots from 12:00 to 22:00 for the chosen date.</td><td>tables.js</td></tr>
+  <tr><td>FR-24</td><td>The system shall disable a slot when no table with enough seats for the party is free at that time.</td><td>useReservation</td></tr>
+  <tr><td>FR-25</td><td>The system shall reject a past date, a party size outside 1 to 12, a phone number not in the format 03XX-XXXXXXX, and a booking less than one hour ahead.</td><td>useReservation</td></tr>
+  <tr><td>FR-26</td><td>The system shall show a confirmation modal summarising the booking before saving it with status Pending.</td><td>ReservationScreen</td></tr>
+  <tr><td>FR-27</td><td>The system shall list the customer's reservations and cancel one after an Alert confirmation.</td><td>MyReservationsScreen</td></tr>
+</table>
+
+<h4>Module F: Orders</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-28</td><td>The system shall require a table for Dine-in orders and a pickup time for Takeaway orders before checkout.</td><td>CartScreen</td></tr>
+  <tr><td>FR-29</td><td>The system shall calculate subtotal, promo discount, 5% service charge, 15% sales tax and grand total on the Order Summary screen.</td><td>pricing.js</td></tr>
+  <tr><td>FR-30</td><td>The system shall create an order with id, items, total, type, status Pending and a timestamp when the customer taps Place order, then empty the cart.</td><td>OrdersContext</td></tr>
+  <tr><td>FR-31</td><td>The system shall advance an order automatically from Pending to Preparing (10 s), Ready (20 s) and Served (30 s) while it is being tracked, unless a manager has changed it manually.</td><td>OrderTrackingScreen</td></tr>
+  <tr><td>FR-32</td><td>The system shall show a step progress indicator and an elapsed-time counter that updates every second.</td><td>OrderTrackingScreen</td></tr>
+  <tr><td>FR-33</td><td>The system shall let a customer cancel their own order while it is Pending.</td><td>OrderTrackingScreen</td></tr>
+</table>
+
+<h4>Module G: Manager Dashboard</h4>
+<table class="fr">
+  <tr><th>ID</th><th>Requirement</th><th style="width:34mm">Implemented in</th></tr>
+  <tr><td>FR-34</td><td>The system shall show the Dashboard tab only when the logged-in user's role is manager.</td><td>MainTabs</td></tr>
+  <tr><td>FR-35</td><td>The system shall list all orders and offer only the legal next statuses as buttons (e.g. Pending → Preparing or Cancelled).</td><td>OrdersPanel, ordersReducer</td></tr>
+  <tr><td>FR-36</td><td>The system shall let the manager accept or decline Pending reservations.</td><td>ReservationsPanel</td></tr>
+  <tr><td>FR-37</td><td>The system shall let the manager add a menu item, edit its price and toggle its availability, with the change visible on the customer menu immediately.</td><td>MenuManagementPanel, MenuContext</td></tr>
+  <tr><td>FR-38</td><td>The system shall persist orders, reservations, menu edits and accounts in AsyncStorage and restore them at start-up behind a loading screen.</td><td>usePersistedReducer</td></tr>
+</table>
+
+<h2>4. Non-Functional Requirements</h2>
+<table>
+  <tr><th style="width:12mm">ID</th><th style="width:30mm">Category</th><th>Requirement</th></tr>
+  <tr><td>NFR-01</td><td>Usability</td><td>A first-time customer shall be able to go from login to a placed order in under 2 minutes without instructions. Primary actions are full-width buttons, errors appear inline next to the field in plain language, and every list has an empty state that says what to do next.</td></tr>
+  <tr><td>NFR-02</td><td>Usability / Accessibility</td><td>Touch targets are at least 36 × 36 dp (with hitSlop on small icons), icon-only buttons have accessibility labels, and body text contrast targets WCAG AA in both themes.</td></tr>
+  <tr><td>NFR-03</td><td>Performance: screen load</td><td>After the loading gate, every screen shall render within 300 ms on a mid-range Android device. The only deliberate delays are the simulated 1 s login and 1.5 s menu request.</td></tr>
+  <tr><td>NFR-04</td><td>Performance: list scroll</td><td>The menu shall scroll at 60 fps. It uses FlatList virtualisation with a <code>keyExtractor</code>, <code>React.memo</code> on <code>MenuItemCard</code> and <code>useCallback</code> handlers, so toggling one favourite re-renders one card, not the whole list (measured: 19 renders before, 1 after).</td></tr>
+  <tr><td>NFR-05</td><td>Performance: input</td><td>Search input shall stay responsive while typing. Filtering runs once per 400 ms pause (debounce), and derived lists are memoised with <code>useMemo</code>.</td></tr>
+  <tr><td>NFR-06</td><td>Responsiveness</td><td>Layouts shall adapt from 320 dp phones to tablets and web. Flexbox layouts wrap chips and slots, forms and lists have a max width (480 to 720 dp) centred on wide screens, and safe-area insets are respected on notched devices.</td></tr>
+  <tr><td>NFR-07</td><td>Theming</td><td>All colours come from one palette file through <code>useTheme()</code>. Toggling dark mode shall restyle every screen, the headers and the tab bar instantly, and the choice is remembered.</td></tr>
+  <tr><td>NFR-08</td><td>Maintainability: structure</td><td>Source is organised under <code>src/</code> into <code>components, screens, context, reducers, hooks, data, navigation</code> (plus <code>theme</code> and <code>utils</code>). Screens contain UI only; business rules live in reducers and custom hooks.</td></tr>
+  <tr><td>NFR-09</td><td>Maintainability: reuse and tests</td><td>Reusable components (MenuItemCard, QuantityStepper, StatusBadge, dashboard panels) and hooks are shared across screens. Reducers are pure and covered by Jest unit tests (<code>npm test</code>, 19 tests).</td></tr>
+  <tr><td>NFR-10</td><td>Data handling without a backend</td><td>Seed data lives in <code>src/data/*.js</code>. Runtime data is held in React state (Context + useReducer) and saved to AsyncStorage after every change. It is loaded once at start-up, and a loading screen blocks the UI until loading completes, so empty data is never flashed. Storage errors are caught and logged, and the app falls back to seed data.</td></tr>
+  <tr><td>NFR-11</td><td>Reliability</td><td>Every timer and interval (menu request, debounce, order tracking) is cleared in an effect cleanup, so no state update happens after unmount. The order reducer rejects illegal status transitions.</td></tr>
+  <tr><td>NFR-12</td><td>Portability / Constraints</td><td>The app shall run on Android, iOS (Expo Go) and web from one JavaScript codebase, with no backend, no external API and no state management library.</td></tr>
+  <tr><td>NFR-13</td><td>Security (prototype level)</td><td>Passwords are never passed to UI state after login (<code>toPublicUser</code>). Because this is a mock, stored accounts are not encrypted, and a production version must replace this with a real authentication server.</td></tr>
+</table>
+
+<h2>5. Client-Side Data Model (Mock Data)</h2>
+<p>With no database, each data set below is a JavaScript module in <code>src/data</code> that seeds React state. Mutable sets are managed by a reducer and mirrored to AsyncStorage under the key shown.</p>
+<table>
+  <tr><th style="width:27mm">Data Set Name</th><th style="width:62mm">Fields</th><th>Description</th></tr>
+  <tr><td><b>Users</b><br><span class="small">users.js · key @restaurant/accounts</span></td><td>id, fullName, email, password, role ('customer' | 'manager'), phone</td><td>Mock accounts for login. Signup appends to the list held in AuthContext. The logged-in user (without the password) is kept in AuthContext state.</td></tr>
+  <tr><td><b>Categories</b><br><span class="small">menu.js · CATEGORIES</span></td><td>name ('Starters' | 'Mains' | 'Desserts' | 'Drinks'), tile colour (from theme palette)</td><td>Drives the category chips and the coloured image tiles.</td></tr>
+  <tr><td><b>MenuItems</b><br><span class="small">menu.js · key @restaurant/menu</span></td><td>id, name, description, price (Rs.), category, image (emoji), isSpecial, isAvailable</td><td>19 seed dishes across 4 categories. Held in MenuContext (menuReducer) so manager edits reach the customer menu immediately.</td></tr>
+  <tr><td><b>Tables</b><br><span class="small">tables.js</span></td><td>id, name, seats, area</td><td>8 tables (2 to 12 seats) used for availability checks and Dine-in table selection. Also exports TIME_SLOTS 12:00 to 22:00.</td></tr>
+  <tr><td><b>Reservations</b><br><span class="small">reservations.js · key @restaurant/reservations</span></td><td>id, userId, customerName, phone, date (YYYY-MM-DD), time (HH:00), partySize, tableId, status ('Pending' | 'Accepted' | 'Declined' | 'Cancelled'), createdAt</td><td>Seeds are generated relative to today (tomorrow 19:00 fully booked) so a disabled slot is always visible. Managed by ReservationsContext.</td></tr>
+  <tr><td><b>Orders</b><br><span class="small">key @restaurant/orders</span></td><td>id, userId, customerName, items[{id, name, price, quantity, note, image}], totals{subtotal, discount, serviceCharge, salesTax, grandTotal}, total, type ('dine-in' | 'takeaway'), tableId, pickupTime, status, statusTimes{status: timestamp}, manualOverride, timestamp</td><td>Created at checkout by OrdersContext (ordersReducer). Starts empty.</td></tr>
+  <tr><td><b>PromoCodes</b><br><span class="small">promoCodes.js</span></td><td>code → discount percent</td><td>WELCOME10 = 10, STUDENT15 = 15, FEAST20 = 20.</td></tr>
+  <tr><td><b>Cart</b> (state)<br><span class="small">CartContext, not persisted</span></td><td>items[{id, name, price, image, category, quantity, note}], promoCode, discountPercent</td><td>Managed by cartReducer. It is session-only on purpose: a cart is short-lived.</td></tr>
+</table>
+
+<h2 class="pagebreak">6. UML Diagrams</h2>
+<p>The diagram sources (Mermaid) are in <code>A1/UML/src</code> and the exported PNGs are in <code>A1/UML</code>.</p>
+
+<div class="figure"><img src="../UML/01-use-case.png" style="max-height:175mm"><div class="caption">Figure 1: Use Case Diagram: Customer and Restaurant Manager actors</div></div>
+<p>The use case diagram shows the two actors and the 21 use cases inside the app boundary. The Customer signs up, logs in, browses, manages the cart, places and tracks orders, and reserves or cancels tables. The Manager updates order statuses, reviews reservations and manages menu items. Log In, Toggle Dark Mode and Log Out are shared. <i>Place Order</i> «includes» <i>Calculate Bill</i>, <i>Choose Dine-in / Takeaway</i> and <i>Apply Promo Code</i>. <i>Reserve Table</i> includes <i>Check Table Availability</i>, and <i>Log In</i> includes <i>Validate Credentials</i>. <i>Search Menu</i> and <i>Filter &amp; Sort Menu</i> «extend» <i>Browse Menu</i> because they are optional refinements of browsing.</p>
+
+<div class="figure"><img src="../UML/02-class.png"><div class="caption">Figure 2: Class Diagram</div></div>
+<p>The class diagram models the domain behind the mock data. <b>User</b> is abstract and specialised by <b>Customer</b> and <b>Manager</b> (inheritance). A Customer owns exactly one <b>Cart</b> (composition), which contains 0..* <b>CartItem</b>s, and each CartItem refers to exactly one <b>MenuItem</b>. A <b>Category</b> groups 0..* MenuItems. A Customer places 0..* <b>Order</b>s. Each Order keeps a snapshot of 1..* CartItems, may be served at 0..1 <b>Table</b>, and uses the <i>OrderStatus</i> and <i>OrderType</i> enumerations. A Customer makes 0..* <b>Reservation</b>s, each booking exactly one Table. The Manager manages MenuItems, updates Orders and reviews Reservations. Attributes carry types and the key operations match the reducer actions.</p>
+
+<div class="figure"><img src="../UML/03-sequence-place-order.png"><div class="caption">Figure 3: Sequence Diagram: "Customer places an order"</div></div>
+<p>The sequence starts when the customer taps <i>+ Add to Cart</i>. The memoised card calls the stable <code>onAddToCart</code> callback, MenuScreen dispatches <code>ADD_ITEM</code>, and the cart badge updates. In the Cart the customer edits quantities and notes, applies a promo code and picks Dine-in with a table. Choosing no table produces an inline error (the <i>alt</i> fragment). The Order Summary computes totals with <code>useMemo</code>. <i>Place order</i> calls <code>placeOrder</code>, which dispatches <code>PLACE_ORDER</code> with status Pending, persists it to AsyncStorage asynchronously, clears the cart and navigates to Order Tracking. There, intervals tick every second and advance the status at 10, 20 and 30 seconds (loop / opt). The intervals are cleared on unmount.</p>
+
+<div class="figure"><img src="../UML/04-state-order.png"><div class="caption">Figure 4: State Machine Diagram: Order lifecycle</div></div>
+<p>An order is created in <b>Pending</b>. The events <i>10 s elapsed</i> or <i>Manager taps "Start preparing"</i> move it to <b>Preparing</b>, <i>20 s</i> or <i>"Mark ready"</i> to <b>Ready</b>, and <i>30 s</i> or <i>"Mark served"</i> to <b>Served</b>. <b>Cancelled</b> can be reached from Pending (by the customer or the manager) and from Preparing (by the manager only). Served and Cancelled are final. Timed transitions are guarded by <i>[no manual override]</i>: once a manager changes an order by hand, the demo timer stops. <code>ordersReducer</code> enforces this machine and ignores any other transition.</p>
+
+<div class="figure"><img src="../UML/05-component.png"><div class="caption">Figure 5: Component Diagram: screens, providers, reducers, hooks and storage</div></div>
+<p>The component diagram shows the app's layers and their dependencies, read left to right. <code>App.js</code> wraps the tree in all providers. <code>AppNavigator</code> holds the root stack and the loading gate, and <code>MainTabs</code> holds the role-based tabs with nested stacks. Screens depend only on context consumer hooks (<code>useCart</code>, <code>useOrders</code>, ...) and on custom hooks (<code>useForm</code>, <code>useDebounce</code>, <code>useReservation</code>). Each provider delegates state changes to a pure reducer and persists through <code>usePersistedReducer</code> to AsyncStorage. Seed data comes from the <code>data/</code> modules. No screen talks to storage directly.</p>
+
+<h2 class="pagebreak">7. MVP Frontend Development (React Native)</h2>
+<p>Sections 7.1 to 7.8 correspond to Questions 3 to 10. The screenshots are from the running build (see <code>A1/screenshots</code>).</p>
+
+<div class="screen">
+<h3>7.1 Login and Signup Screen (Q3)</h3>
+<div class="shots"><img src="../screenshots/q3-validation-errors.png"><img src="../screenshots/q3-submitting.png"><img src="../screenshots/q3-signup-success-menu.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Authenticate existing users and register new Customers or Managers.</td></tr>
+  <tr><td>UI elements</td><td>Logo and title; Full name (signup only), Email, Password and Confirm password (signup only) inputs with inline errors; Show/Hide password toggle; Customer/Manager role selector (signup only); a submit button that shows an ActivityIndicator; a "Sign up / Log in" mode switch link.</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> app start (initial route) or Log out. <b>Exit:</b> on success, <code>navigation.reset</code> to <i>Main</i>. Customers land on the Menu tab and managers on the Dashboard tab.</td></tr>
+  <tr><td>Local data</td><td><code>src/data/users.js</code> (mock accounts, <code>authenticate</code>, <code>registerUser</code> with a 1 s <code>setTimeout</code>), and the accounts list from AuthContext.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useState</code> for mode, role and the show-password flag. <code>useForm</code> (custom, Q9) for controlled values, errors that clear on edit, validation and <code>isSubmitting</code>. <code>useCallback</code> keeps the mode-dependent validator stable. <code>useAuth</code> (useContext) stores the logged-in user globally. <code>useTheme</code> for colours. <code>useMemo</code> to build the themed styles.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.2 Menu Browsing Screen (Q4)</h3>
+<div class="shots"><img src="../screenshots/q4-category-desserts.png"><img src="../screenshots/q8-sort-price-asc.png"><img src="../screenshots/q7-menu-cart-badge.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Show the restaurant's menu by category, with specials and availability, so the customer can add items to the cart.</td></tr>
+  <tr><td>UI elements</td><td>Loading spinner; error message with Retry; horizontal category chips; sort options; a FlatList of <code>MenuItemCard</code>s (emoji image tile, name, "Daily Special" badge, description, price, heart, Add to Cart / Unavailable); pull to refresh; a header title with the item count.</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> Menu tab (customer landing screen). <b>Exit:</b> the Cart tab badge leads to the Cart, and the other tabs.</td></tr>
+  <tr><td>Local data</td><td><code>src/data/menu.js</code> (19 items, <code>fetchMenu()</code> Promise resolving after 1.5 s, 10% simulated failure), the live menu from MenuContext, and the cart quantities from CartContext.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useState</code> for menuItems, isLoading, error, refreshing, selectedCategory and favourites. <code>useEffect</code> with <code>[]</code> "fetches" on mount, and its cleanup clears the timer. A <code>useEffect</code> on <code>[navigation, count]</code> updates the header title. A <code>useEffect</code> on <code>[menu]</code> syncs manager edits. In Q4 a separate effect on <code>[selectedCategory, menuItems]</code> filtered the list; Q8 replaced it with <code>useMemo</code>.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.3 Search and Scroll Controls (Q5)</h3>
+<div class="shots"><img src="../screenshots/q5-search-render-counter.png"><img src="../screenshots/q5-recent-searches.png"><img src="../screenshots/q5-back-to-top.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Find dishes quickly and move around long lists.</td></tr>
+  <tr><td>UI elements</td><td>A search bar with a 🔍 icon (focuses the input) and a ✕ clear button (clears and keeps focus); recent-search chips; a "renders: n" debug label; a floating "↑ Back to top" button; an empty state ("No dishes found").</td></tr>
+  <tr><td>Navigation</td><td>Part of the Menu screen; no route change.</td></tr>
+  <tr><td>Local data</td><td>The loaded menu items and the last five search terms (in state).</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useRef</code> for the TextInput (focus), the FlatList (<code>scrollToOffset</code>), the previous query (avoids duplicate consecutive recents) and the render counter. Mutating a ref does not re-render, unlike state. In Q5 the debounce timer id was also kept in a ref and cleared on every keystroke and on unmount; Q9 replaced this with <code>useDebounce</code>. <code>useState</code> holds the showBackToTop flag, set when the scroll offset exceeds 300 px.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.4 Profile and Theme Screen (Q6)</h3>
+<div class="shots"><img src="../screenshots/q6-profile-light.png"><img src="../screenshots/q6-profile-dark.png"><img src="../screenshots/q6-menu-dark.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Show who is logged in, switch between light and dark mode for the whole app, and log out.</td></tr>
+  <tr><td>UI elements</td><td>An initials avatar, name, role badge, a details card (name, email, role, phone), a dark-mode Switch and a Log out button.</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> Profile tab (both roles). <b>Exit:</b> Log out calls <code>resetRoot('Login')</code>, which resets the whole stack.</td></tr>
+  <tr><td>Local data</td><td><code>user</code> from AuthContext; <code>isDark</code> from ThemeContext (persisted); palettes from <code>src/theme/palette.js</code>.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useContext</code> through <code>useAuth</code> / <code>useTheme</code>. Both throw a descriptive error outside their provider, which avoids prop drilling through the nested navigators. Every screen and the navigation theme read colours from <code>useTheme</code>. <code>MainTabs</code> reads <code>user.role</code> to show the Dashboard tab to managers only.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.5 Cart Screen (Q7)</h3>
+<div class="shots"><img src="../screenshots/q7-invalid-promo.png"><img src="../screenshots/q7-cart.png"><img src="../screenshots/q10-order-type.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Review and edit the order, apply a promo code and choose Dine-in or Takeaway.</td></tr>
+  <tr><td>UI elements</td><td>Item rows with emoji tile, a quantity stepper (− n +), a remove (trash) button and a "Special instructions" input; Clear cart; a promo input with Apply/Remove and an error message; subtotal and discount; a Dine-in/Takeaway segmented control with table chips or pickup-time chips; a "Review order →" button; an empty-cart state.</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> Cart tab (badge shows the item count). <b>Exit:</b> "Review order" goes to OrderSummary with params <code>{ orderType, tableId, pickupTime }</code>; "Browse menu" (when empty) goes to the Menu tab.</td></tr>
+  <tr><td>Local data</td><td>CartContext state; <code>promoCodes.js</code>; <code>tables.js</code> for dine-in tables.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useReducer</code> (inside CartProvider) with the pure <code>cartReducer</code>: ADD_ITEM, REMOVE_ITEM, INCREMENT, DECREMENT, UPDATE_NOTE, CLEAR_CART, APPLY_PROMO and REMOVE_PROMO, exposed through <code>useCart</code>. <code>useState</code> for the promo input and error, and for orderType, tableId and pickupTime. <code>useMemo</code> for the pickup options.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.6 Order Summary Screen (Q8)</h3>
+<div class="shots"><img src="../screenshots/q8-order-summary.png"><img src="../screenshots/q8-console-before.png" style="width:60mm"><img src="../screenshots/q8-console-after.png" style="width:60mm"></div>
+<table>
+  <tr><td>Purpose</td><td>Show the final bill and place the order.</td></tr>
+  <tr><td>UI elements</td><td>An order-type card, an items list with notes, a bill (Subtotal, Promo discount, Service charge 5%, Sales tax 15%, Grand total), a payment note and a "Place order · Rs. total" button.</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> from Cart ("Review order"). <b>Exit:</b> Place order pops the cart stack and opens Orders tab › OrderTracking.</td></tr>
+  <tr><td>Local data</td><td>CartContext items and discount; <code>SERVICE_CHARGE_RATE</code> and <code>SALES_TAX_RATE</code> constants in <code>utils/pricing.js</code>.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useMemo</code> computes totals only when <code>items</code> or <code>discountPercent</code> change. On the Menu, <code>React.memo(MenuItemCard)</code> with <code>useCallback</code> handlers (add to cart, toggle favourite) keeps prop references stable, so toggling a heart re-renders one card instead of 19 (see the console captures). A single <code>useMemo</code> now derives the visible list from category, search and sort, replacing Q4's state and effect.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.7 Table Reservation Screen (Q9)</h3>
+<div class="shots"><img src="../screenshots/q9-disabled-slot.png"><img src="../screenshots/q9-confirm-modal.png"><img src="../screenshots/q9-my-reservations.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Book a table for a date, time and party size, and manage your bookings.</td></tr>
+  <tr><td>UI elements</td><td>Date chips (Today to +6 days) plus a YYYY-MM-DD input; a party-size stepper (1 to 12); an hourly slot grid (12:00 to 22:00) with "n free" or a struck-through "Full" disabled slot; available-table chips; name and 03XX-XXXXXXX phone inputs with inline errors; "Review booking"; a confirmation modal (Edit / Confirm); a "My bookings" header link leading to a list with status badges and "Cancel booking" (Alert confirmation).</td></tr>
+  <tr><td>Navigation</td><td><b>Entry:</b> Reserve tab. <b>Exit:</b> Confirm or "My bookings" goes to MyReservations (Back returns).</td></tr>
+  <tr><td>Local data</td><td><code>mockTables</code>, <code>TIME_SLOTS</code>, <code>mockReservations</code> (through ReservationsContext).</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useReservation</code> (custom) holds all the logic: form state, availability (<code>useMemo</code> over reservations and tables), validation (past date, party size, phone regex, at least 1 h ahead), <code>createReservation</code> and <code>cancelReservation</code>. The screen only renders. <code>useForm</code> and <code>useDebounce</code> are the other custom hooks. All follow the rules of hooks: names start with "use", they are called at the top level and none returns JSX.</td></tr>
+</table>
+</div>
+
+<div class="screen">
+<h3>7.8 Order Tracking and Manager Dashboard (Q10)</h3>
+<div class="shots"><img src="../screenshots/q10-tracking-preparing.png"><img src="../screenshots/q10-dashboard-orders.png"><img src="../screenshots/q10-dashboard-menu.png"></div>
+<table>
+  <tr><td>Purpose</td><td>Let customers follow their order live, and give managers one place to run orders, bookings and the menu.</td></tr>
+  <tr><td>UI elements</td><td><b>Tracking:</b> order id and status badge, placed time and type, a large mm:ss elapsed timer, a 4-step progress indicator (Pending, Preparing, Ready, Served) with timestamps, an items list, and a Cancel order button (Pending only). <b>My Orders:</b> a list with status and "Track →". <b>Dashboard:</b> stats (active orders, today's sales, pending bookings) and a segmented control: Incoming Orders (legal next-status buttons), Reservations (Accept/Decline) and Menu (add-item form, price edit + Save, availability Switch).</td></tr>
+  <tr><td>Navigation</td><td>Bottom tabs, each with a nested native stack. Customer: Menu, Cart (› OrderSummary), Orders (MyOrders › OrderTracking), Reserve (› MyReservations), Profile. Manager: Dashboard, Menu, Profile. Safe areas are handled by <code>SafeAreaProvider</code>, the headers and the tab bar.</td></tr>
+  <tr><td>Local data</td><td>OrdersContext, ReservationsContext and MenuContext, all persisted to AsyncStorage.</td></tr>
+  <tr><td>Hooks &amp; why</td><td><code>useEffect</code> + <code>setInterval</code> for the 1 s clock, and a second interval advances the status at 10, 20 and 30 s. Both are cleared in cleanup. <code>useReducer</code> in OrdersContext / MenuContext / ReservationsContext. <code>usePersistedReducer</code> (custom) loads from AsyncStorage in a mount effect and saves in an effect after each change. <code>AppNavigator</code> shows <code>LoadingScreen</code> until every store has loaded. <code>useMemo</code> for the dashboard stats.</td></tr>
+</table>
+</div>
+
+<h2>Appendix A: Hooks-to-Screen Traceability</h2>
+<table>
+  <tr><th>Screen / module</th><th>useState</th><th>useEffect</th><th>useRef</th><th>useContext</th><th>useReducer</th><th>useMemo</th><th>useCallback</th><th>Custom hooks</th></tr>
+  <tr><td>LoginScreen</td><td>✔</td><td></td><td></td><td>✔</td><td></td><td>✔</td><td>✔</td><td>useForm</td></tr>
+  <tr><td>MenuScreen</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td><td></td><td>✔</td><td>✔</td><td>useDebounce</td></tr>
+  <tr><td>MenuItemCard (React.memo)</td><td></td><td></td><td></td><td>✔</td><td></td><td>✔</td><td></td><td></td></tr>
+  <tr><td>ProfileScreen</td><td></td><td></td><td></td><td>✔</td><td></td><td>✔</td><td></td><td></td></tr>
+  <tr><td>CartScreen</td><td>✔</td><td></td><td></td><td>✔</td><td>✔ (CartProvider)</td><td>✔</td><td></td><td></td></tr>
+  <tr><td>OrderSummaryScreen</td><td></td><td></td><td></td><td>✔</td><td></td><td>✔</td><td></td><td></td></tr>
+  <tr><td>ReservationScreen / MyReservations</td><td>✔</td><td>✔ (layout)</td><td></td><td>✔</td><td>✔ (ReservationsProvider)</td><td>✔</td><td>✔</td><td>useReservation</td></tr>
+  <tr><td>OrderTrackingScreen</td><td>✔</td><td>✔ (intervals)</td><td></td><td>✔</td><td>✔ (OrdersProvider)</td><td>✔</td><td></td><td></td></tr>
+  <tr><td>ManagerDashboardScreen + panels</td><td>✔</td><td></td><td></td><td>✔</td><td>✔ (Menu/Orders/Reservations)</td><td>✔</td><td></td><td>useForm</td></tr>
+  <tr><td>Providers</td><td>✔</td><td>✔ (storage)</td><td></td><td></td><td>✔</td><td>✔</td><td>✔</td><td>usePersistedReducer</td></tr>
+</table>
+
+</body>
+</html>
