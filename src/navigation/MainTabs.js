@@ -5,17 +5,21 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useCart } from '../context/CartContext';
 import MenuScreen from '../screens/MenuScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import CartScreen from '../screens/CartScreen';
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
+const CartStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 const DashboardStack = createNativeStackNavigator();
 
 const TAB_ICONS = {
   DashboardTab: 'speedometer',
   MenuTab: 'restaurant',
+  CartTab: 'cart',
   ProfileTab: 'person-circle',
 };
 
@@ -33,6 +37,14 @@ function MenuStackScreen() {
     <MenuStack.Navigator>
       <MenuStack.Screen name="Menu" component={MenuScreen} />
     </MenuStack.Navigator>
+  );
+}
+
+function CartStackScreen() {
+  return (
+    <CartStack.Navigator>
+      <CartStack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
+    </CartStack.Navigator>
   );
 }
 
@@ -55,6 +67,7 @@ function DashboardStackScreen() {
 export default function MainTabs() {
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { itemCount } = useCart();
   const isManager = user?.role === 'manager';
 
   return (
@@ -78,6 +91,13 @@ export default function MainTabs() {
         <Tab.Screen name="DashboardTab" component={DashboardStackScreen} options={{ title: 'Dashboard' }} />
       )}
       <Tab.Screen name="MenuTab" component={MenuStackScreen} options={{ title: 'Menu' }} />
+      {!isManager && (
+        <Tab.Screen
+          name="CartTab"
+          component={CartStackScreen}
+          options={{ title: 'Cart', tabBarBadge: itemCount > 0 ? itemCount : undefined }}
+        />
+      )}
       <Tab.Screen name="ProfileTab" component={ProfileStackScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );

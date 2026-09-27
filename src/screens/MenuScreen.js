@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { CATEGORIES, fetchMenu, formatPrice } from '../data/menu';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { CART_ACTIONS } from '../reducers/cartReducer';
 
 const ALL = 'All';
 const SEARCH_DEBOUNCE_MS = 400;
@@ -20,6 +23,11 @@ const MAX_RECENT_SEARCHES = 5;
 export default function MenuScreen({ navigation }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { user } = useAuth();
+  const { state: cart, dispatch } = useCart();
+  const canOrder = user?.role !== 'manager';
+  // menuItemId -> quantity already in the cart
+  const quantities = Object.fromEntries(cart.items.map((i) => [i.id, i.quantity]));
 
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -178,12 +186,21 @@ export default function MenuScreen({ navigation }) {
           <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
           <View style={styles.cardFooter}>
             <Text style={styles.price}>{formatPrice(item.price)}</Text>
-            <Pressable
-              disabled={unavailable}
-              style={[styles.addButton, unavailable && styles.addButtonDisabled]}
-            >
-              <Text style={styles.addText}>{unavailable ? 'Unavailable' : '+ Add'}</Text>
-            </Pressable>
+            {canOrder && (
+              <Pressable
+                disabled={unavailable}
+                onPress={() => dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: item })}
+                style={[styles.addButton, unavailable && styles.addButtonDisabled]}
+              >
+                <Text style={styles.addText}>
+                  {unavailable
+                    ? 'Unavailable'
+                    : quantities[item.id]
+                      ? `+ Add (${quantities[item.id]})`
+                      : '+ Add'}
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       </View>
