@@ -1,0 +1,51 @@
+---
+title: Sequence Diagram - Customer places an order
+---
+sequenceDiagram
+    autonumber
+    actor C as Customer
+    participant MS as MenuScreen
+    participant MC as MenuItemCard (memo)
+    participant CC as CartContext / cartReducer
+    participant CS as CartScreen
+    participant OS as OrderSummaryScreen
+    participant OC as OrdersContext / ordersReducer
+    participant AS as AsyncStorage
+    participant OT as OrderTrackingScreen
+
+    C->>MC: Tap "+ Add to Cart"
+    MC->>MS: onAddToCart(item) (useCallback)
+    MS->>CC: dispatch({ type: ADD_ITEM, payload: item })
+    CC-->>MS: new cart state (items, quantity)
+    CC-->>C: Cart tab badge shows item count
+
+    C->>CS: Open Cart tab
+    C->>CS: Edit quantity / note, enter "WELCOME10"
+    CS->>CC: dispatch(INCREMENT / UPDATE_NOTE / APPLY_PROMO)
+    CC-->>CS: updated items, promoCode, discountPercent
+    C->>CS: Choose Dine-in + Table 3 (useState)
+    C->>CS: Tap "Review order"
+    alt no table / pickup time selected
+        CS-->>C: Inline error "Choose the table you are sitting at."
+    else valid
+        CS->>OS: navigate("OrderSummary", { orderType, tableId, pickupTime })
+    end
+
+    OS->>OS: useMemo(calculateTotals(items, discountPercent))
+    OS-->>C: Subtotal, discount, 5% service, 15% tax, grand total
+    C->>OS: Tap "Place order"
+    OS->>OC: placeOrder({ user, items, totals, type, tableId })
+    OC->>OC: dispatch(PLACE_ORDER) -> status "Pending", timestamp
+    OC-)AS: useEffect: setItem("@restaurant/orders", orders)
+    OS->>CC: dispatch({ type: CLEAR_CART })
+    OS->>OT: navigate("OrdersTab" > "OrderTracking", { orderId })
+
+    OT->>OT: useEffect: setInterval(1 s) clock + status timer
+    loop every second until Served
+        OT-->>C: Step indicator + elapsed mm:ss
+        opt elapsed >= 10 s / 20 s / 30 s
+            OT->>OC: updateStatus(id, Preparing / Ready / Served)
+            OC-)AS: persist updated order
+        end
+    end
+    OT->>OT: cleanup: clearInterval() on unmount / final status

@@ -1,0 +1,93 @@
+---
+title: Component Diagram - React Native app structure
+---
+flowchart LR
+    subgraph NAV["navigation/"]
+        direction TB
+        App["App.js<br/>wraps all providers"]
+        AppNav["AppNavigator<br/>root stack + loading gate"]
+        Tabs["MainTabs<br/>bottom tabs, nested stacks,<br/>role-based Dashboard tab"]
+        App --> AppNav --> Tabs
+    end
+
+    subgraph SCR["screens/"]
+        direction TB
+        Login["LoginScreen"]
+        Menu["MenuScreen"]
+        Cart["CartScreen"]
+        Summary["OrderSummaryScreen"]
+        Track["OrderTrackingScreen<br/>MyOrdersScreen"]
+        Reserve["ReservationScreen<br/>MyReservationsScreen"]
+        Profile["ProfileScreen"]
+        Dash["ManagerDashboardScreen<br/>+ dashboard panels"]
+    end
+
+    subgraph HOOKS["hooks/ (custom)"]
+        direction TB
+        useForm["useForm"]
+        useDebounce["useDebounce"]
+        useRes["useReservation"]
+        usePersist["usePersistedReducer"]
+    end
+
+    subgraph CTX["context/ (Providers + consumer hooks)"]
+        direction TB
+        ThemeP["ThemeContext · useTheme"]
+        AuthP["AuthContext · useAuth"]
+        CartP["CartContext · useCart"]
+        OrdP["OrdersContext · useOrders"]
+        ResP["ReservationsContext · useReservations"]
+        MenuP["MenuContext · useMenu"]
+    end
+
+    subgraph RED["reducers/ (pure)"]
+        direction TB
+        cartR["cartReducer"]
+        ordR["ordersReducer"]
+        resR["reservationsReducer"]
+        menuR["menuReducer"]
+    end
+
+    subgraph DATA["data/ + storage"]
+        direction TB
+        Mock["users · menu · tables ·<br/>reservations · promoCodes"]
+        Storage[("AsyncStorage")]
+    end
+
+    Tabs --> SCR
+    Login --> useForm
+    Login --> AuthP
+    Menu --> useDebounce
+    Menu --> CartP
+    Menu --> MenuP
+    Cart --> CartP
+    Summary --> OrdP
+    Summary --> CartP
+    Track --> OrdP
+    Reserve --> useRes
+    Profile --> AuthP
+    Profile --> ThemeP
+    Dash --> OrdP
+    Dash --> ResP
+    Dash --> MenuP
+    Dash --> useForm
+    useRes --> ResP
+
+    CartP --> cartR
+    OrdP --> ordR
+    ResP --> resR
+    MenuP --> menuR
+    OrdP & ResP & MenuP & AuthP & ThemeP --> usePersist
+    usePersist --> Storage
+    AuthP & MenuP & ResP & cartR --> Mock
+
+    classDef scr fill:#fff3e8,stroke:#e4572e,color:#222
+    classDef ctx fill:#e8f1ff,stroke:#2f6fde,color:#222
+    classDef red fill:#eaf7ef,stroke:#2e9d5b,color:#222
+    classDef hook fill:#f6ecff,stroke:#8a4fd8,color:#222
+    classDef data fill:#f5f5f5,stroke:#888,color:#222
+    class Login,Menu,Cart,Summary,Track,Reserve,Profile,Dash scr
+    class ThemeP,AuthP,MenuP,ResP,OrdP,CartP ctx
+    class cartR,ordR,menuR,resR red
+    class useForm,useDebounce,useRes,usePersist hook
+    class Mock,Storage data

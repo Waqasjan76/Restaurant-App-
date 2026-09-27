@@ -1,0 +1,63 @@
+---
+title: Use Case Diagram - Restaurant App MVP
+---
+flowchart LR
+    Customer(["🧑 Customer"])
+    Manager(["🧑‍🍳 Restaurant Manager"])
+
+    subgraph SYS["Restaurant App (frontend only)"]
+        direction TB
+        UC1([Sign Up])
+        UC2([Log In])
+        UC2a([Validate Credentials])
+        UC3([Browse Menu])
+        UC4([Search Menu])
+        UC5([Filter & Sort Menu])
+        UC6([Mark Favourite])
+        UC7([Manage Cart])
+        UC8([Place Order])
+        UC8a([Calculate Bill])
+        UC8b([Choose Dine-in / Takeaway])
+        UC9([Apply Promo Code])
+        UC10([Track Order])
+        UC11([Reserve Table])
+        UC11a([Check Table Availability])
+        UC12([Cancel Reservation])
+        UC13([Toggle Dark Mode])
+        UC14([Update Order Status])
+        UC15([Accept / Decline Reservation])
+        UC16([Manage Menu Items])
+        UC17([Log Out])
+    end
+
+    Customer --- UC1
+    Customer --- UC2
+    Customer --- UC3
+    Customer --- UC6
+    Customer --- UC7
+    Customer --- UC8
+    Customer --- UC10
+    Customer --- UC11
+    Customer --- UC12
+    Customer --- UC13
+    Customer --- UC17
+
+    UC2 -. "«include»" .-> UC2a
+    UC8 -. "«include»" .-> UC8a
+    UC8 -. "«include»" .-> UC8b
+    UC8 -. "«include»" .-> UC9
+    UC11 -. "«include»" .-> UC11a
+    UC4 -. "«extend»" .-> UC3
+    UC5 -. "«extend»" .-> UC3
+
+    UC2 --- Manager
+    UC14 --- Manager
+    UC15 --- Manager
+    UC16 --- Manager
+    UC13 --- Manager
+    UC17 --- Manager
+
+    classDef actor fill:#fff3e8,stroke:#e4572e,stroke-width:2px,color:#222,font-weight:bold
+    classDef uc fill:#ffffff,stroke:#555,color:#222
+    class Customer,Manager actor
+    class UC1,UC2,UC2a,UC3,UC4,UC5,UC6,UC7,UC8,UC8a,UC8b,UC9,UC10,UC11,UC11a,UC12,UC13,UC14,UC15,UC16,UC17 uc

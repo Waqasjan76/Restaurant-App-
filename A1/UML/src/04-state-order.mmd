@@ -1,0 +1,23 @@
+---
+title: State Machine Diagram - Order lifecycle
+---
+stateDiagram-v2
+    direction LR
+    [*] --> Pending : placeOrder() from Order Summary
+    Pending --> Preparing : 10 s elapsed [no manual override]\nor Manager taps "Start preparing"
+    Preparing --> Ready : 20 s elapsed [no manual override]\nor Manager taps "Mark ready"
+    Ready --> Served : 30 s elapsed [no manual override]\nor Manager taps "Mark served"
+    Pending --> Cancelled : Customer taps "Cancel order"\nor Manager cancels
+    Preparing --> Cancelled : Manager cancels
+    Served --> [*]
+    Cancelled --> [*]
+
+    note right of Pending
+        entry: statusTimes.Pending = now
+        Any manual change sets manualOverride = true,
+        which stops the automatic demo timer.
+    end note
+    note right of Served
+        Final state: elapsed timer stops,
+        intervals are cleared.
+    end note

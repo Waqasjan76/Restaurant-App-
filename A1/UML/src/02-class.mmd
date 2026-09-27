@@ -1,0 +1,133 @@
+---
+title: Class Diagram - Restaurant App MVP
+---
+classDiagram
+    direction LR
+
+    class User {
+        <<abstract>>
+        +id: string
+        +fullName: string
+        +email: string
+        -password: string
+        +role: Role
+        +phone: string
+        +login(email, password) Promise~User~
+        +logout() void
+    }
+    class Customer {
+        +favourites: string[]
+        +signUp(details) Promise~Customer~
+        +placeOrder(cart, type) Order
+        +reserveTable(details) Reservation
+        +toggleFavourite(menuItemId) void
+    }
+    class Manager {
+        +updateOrderStatus(orderId, status) void
+        +reviewReservation(id, decision) void
+        +addMenuItem(item) void
+        +editPrice(menuItemId, price) void
+        +toggleAvailability(menuItemId) void
+    }
+    class Category {
+        +name: string
+        +tileColor: string
+    }
+    class MenuItem {
+        +id: string
+        +name: string
+        +description: string
+        +price: number
+        +category: string
+        +image: string
+        +isSpecial: boolean
+        +isAvailable: boolean
+    }
+    class Cart {
+        +items: CartItem[]
+        +promoCode: string
+        +discountPercent: number
+        +addItem(menuItem) void
+        +removeItem(id) void
+        +increment(id) void
+        +decrement(id) void
+        +updateNote(id, note) void
+        +applyPromo(code) boolean
+        +clear() void
+        +itemCount() number
+    }
+    class CartItem {
+        +menuItemId: string
+        +name: string
+        +price: number
+        +quantity: number
+        +note: string
+        +lineTotal() number
+    }
+    class Order {
+        +id: string
+        +items: CartItem[]
+        +subtotal: number
+        +serviceCharge: number
+        +salesTax: number
+        +discount: number
+        +total: number
+        +type: OrderType
+        +tableId: string
+        +pickupTime: string
+        +status: OrderStatus
+        +timestamp: number
+        +manualOverride: boolean
+        +updateStatus(next, manual) boolean
+        +elapsedMs(now) number
+    }
+    class Reservation {
+        +id: string
+        +date: string
+        +time: string
+        +partySize: number
+        +customerName: string
+        +phone: string
+        +status: ReservationStatus
+        +createdAt: number
+        +cancel() void
+        +accept() void
+        +decline() void
+    }
+    class Table {
+        +id: string
+        +name: string
+        +seats: number
+        +area: string
+        +isFree(date, time, reservations) boolean
+    }
+    class OrderStatus {
+        <<enumeration>>
+        Pending
+        Preparing
+        Ready
+        Served
+        Cancelled
+    }
+    class OrderType {
+        <<enumeration>>
+        DineIn
+        Takeaway
+    }
+
+    User <|-- Customer
+    User <|-- Manager
+    Category "1" --> "0..*" MenuItem : groups
+    Customer "1" *-- "1" Cart : owns
+    Cart "1" *-- "0..*" CartItem : contains
+    CartItem "0..*" --> "1" MenuItem : refers to
+    Customer "1" --> "0..*" Order : places
+    Order "1" *-- "1..*" CartItem : snapshot of
+    Order "0..*" --> "0..1" Table : served at
+    Customer "1" --> "0..*" Reservation : makes
+    Reservation "0..*" --> "1" Table : books
+    Manager "1" --> "0..*" MenuItem : manages
+    Manager "1" --> "0..*" Order : updates
+    Manager "1" --> "0..*" Reservation : reviews
+    Order ..> OrderStatus
+    Order ..> OrderType
