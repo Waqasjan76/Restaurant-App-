@@ -29,13 +29,6 @@ export const menu = [
   { id: 'm19', name: 'Fresh Lime Soda', description: 'Sweet or salty, made with fresh limes.', price: 250, category: 'Drinks', image: '🍋', isSpecial: false, isAvailable: true },
 ];
 
-export const CATEGORY_COLORS = {
-  Starters: '#fde2c8',
-  Mains: '#fbd0c4',
-  Desserts: '#f6d3e6',
-  Drinks: '#cfe8f5',
-};
-
 // Simulates GET /menu. Returns the promise plus a cancel function that clears
 // the pending timer (the promise then never settles, so no state update runs).
 export function fetchMenu(source = menu) {

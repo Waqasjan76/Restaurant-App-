@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,7 +9,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { CATEGORIES, CATEGORY_COLORS, fetchMenu, formatPrice } from '../data/menu';
+import { CATEGORIES, fetchMenu, formatPrice } from '../data/menu';
+import { useTheme } from '../context/ThemeContext';
 
 const ALL = 'All';
 const SEARCH_DEBOUNCE_MS = 400;
@@ -17,6 +18,9 @@ const BACK_TO_TOP_OFFSET = 300;
 const MAX_RECENT_SEARCHES = 5;
 
 export default function MenuScreen({ navigation }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -137,7 +141,7 @@ export default function MenuScreen({ navigation }) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#e4572e" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.muted}>Loading today's menu…</Text>
       </View>
     );
@@ -159,7 +163,7 @@ export default function MenuScreen({ navigation }) {
     const unavailable = !item.isAvailable;
     return (
       <View style={[styles.card, unavailable && styles.cardDisabled]}>
-        <View style={[styles.imageTile, { backgroundColor: CATEGORY_COLORS[item.category] }]}>
+        <View style={[styles.imageTile, { backgroundColor: colors.tiles[item.category] }]}>
           <Text style={styles.imageEmoji}>{item.image}</Text>
         </View>
         <View style={styles.cardBody}>
@@ -200,7 +204,7 @@ export default function MenuScreen({ navigation }) {
           value={searchText}
           onChangeText={handleSearchChange}
           placeholder="Search dishes or ingredients"
-          placeholderTextColor="#9a9a9a"
+          placeholderTextColor={colors.textMuted}
           onFocus={() => setIsSearchFocused(true)}
           // Small delay so a tap on a suggestion lands before the list hides.
           onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
@@ -281,86 +285,87 @@ export default function MenuScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fffaf5' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: '#fffaf5' },
-  muted: { color: '#777', marginTop: 12, textAlign: 'center' },
-  errorEmoji: { fontSize: 40 },
-  errorText: { color: '#d93025', textAlign: 'center', marginVertical: 12 },
-  retryButton: { backgroundColor: '#e4572e', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 10 },
-  retryText: { color: '#fff', fontWeight: '700' },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 12,
-    marginTop: 10,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0d6cc',
-    backgroundColor: '#fff',
-  },
-  searchIcon: { fontSize: 16 },
-  searchInput: { flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 15, color: '#222' },
-  clearIcon: { fontSize: 16, color: '#888', paddingHorizontal: 4 },
-  suggestions: { marginHorizontal: 12, marginTop: 8 },
-  suggestionsTitle: { fontSize: 12, color: '#888', marginBottom: 6 },
-  suggestionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  suggestionChip: { backgroundColor: '#f3ebe3', borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5 },
-  suggestionText: { color: '#444', fontSize: 13 },
-  chipRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e0d6cc',
-    backgroundColor: '#fff',
-  },
-  chipActive: { backgroundColor: '#e4572e', borderColor: '#e4572e' },
-  chipText: { color: '#444', fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
-  debugLabel: { fontSize: 11, color: '#999', marginHorizontal: 14, marginBottom: 4 },
-  list: { paddingHorizontal: 12, paddingBottom: 80 },
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#f0e6dc',
-  },
-  cardDisabled: { opacity: 0.45 },
-  imageTile: { width: 76, height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  imageEmoji: { fontSize: 38 },
-  cardBody: { flex: 1, marginLeft: 12 },
-  cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#222', flexShrink: 1 },
-  badge: { backgroundColor: '#ffb400', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  badgeText: { fontSize: 10, fontWeight: '700', color: '#3a2a00' },
-  cardDesc: { color: '#666', fontSize: 13, marginTop: 2 },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-  price: { fontSize: 15, fontWeight: '700', color: '#e4572e' },
-  addButton: { backgroundColor: '#e4572e', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 6 },
-  addButtonDisabled: { backgroundColor: '#aaa' },
-  addText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 },
-  emptyEmoji: { fontSize: 44 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#333', marginTop: 8 },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 20,
-    backgroundColor: '#222',
-    borderRadius: 22,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  fabText: { color: '#fff', fontWeight: '700' },
-});
+const createStyles = (c) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: c.background },
+    muted: { color: c.textMuted, marginTop: 12, textAlign: 'center' },
+    errorEmoji: { fontSize: 40 },
+    errorText: { color: c.danger, textAlign: 'center', marginVertical: 12 },
+    retryButton: { backgroundColor: c.primary, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 10 },
+    retryText: { color: c.onPrimary, fontWeight: '700' },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 12,
+      marginTop: 10,
+      paddingHorizontal: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.card,
+    },
+    searchIcon: { fontSize: 16 },
+    searchInput: { flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 15, color: c.text },
+    clearIcon: { fontSize: 16, color: c.textMuted, paddingHorizontal: 4 },
+    suggestions: { marginHorizontal: 12, marginTop: 8 },
+    suggestionsTitle: { fontSize: 12, color: c.textMuted, marginBottom: 6 },
+    suggestionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    suggestionChip: { backgroundColor: c.subtle, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5 },
+    suggestionText: { color: c.text, fontSize: 13 },
+    chipRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
+    chip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.card,
+    },
+    chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+    chipText: { color: c.text, fontWeight: '600' },
+    chipTextActive: { color: c.onPrimary },
+    debugLabel: { fontSize: 11, color: c.textMuted, marginHorizontal: 14, marginBottom: 4 },
+    list: { paddingHorizontal: 12, paddingBottom: 80 },
+    card: {
+      flexDirection: 'row',
+      backgroundColor: c.card,
+      borderRadius: 14,
+      padding: 10,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    cardDisabled: { opacity: 0.45 },
+    imageTile: { width: 76, height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    imageEmoji: { fontSize: 38 },
+    cardBody: { flex: 1, marginLeft: 12 },
+    cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    cardTitle: { fontSize: 16, fontWeight: '700', color: c.text, flexShrink: 1 },
+    badge: { backgroundColor: c.warning, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+    badgeText: { fontSize: 10, fontWeight: '700', color: c.onWarning },
+    cardDesc: { color: c.textMuted, fontSize: 13, marginTop: 2 },
+    cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+    price: { fontSize: 15, fontWeight: '700', color: c.primary },
+    addButton: { backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 6 },
+    addButtonDisabled: { backgroundColor: c.disabled },
+    addText: { color: c.onPrimary, fontWeight: '700', fontSize: 13 },
+    empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 },
+    emptyEmoji: { fontSize: 44 },
+    emptyTitle: { fontSize: 17, fontWeight: '700', color: c.text, marginTop: 8 },
+    fab: {
+      position: 'absolute',
+      right: 16,
+      bottom: 20,
+      backgroundColor: c.fab,
+      borderRadius: 22,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 2 },
+    },
+    fabText: { color: c.onFab, fontWeight: '700' },
+  });

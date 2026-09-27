@@ -1,30 +1,39 @@
-import React from 'react';
-import { Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useMemo } from 'react';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
 import LoginScreen from '../screens/LoginScreen';
-import MenuScreen from '../screens/MenuScreen';
+import MainTabs from './MainTabs';
+import { navigationRef } from './navigationRef';
 
-const Stack = createNativeStackNavigator();
-
-// Temporary landing screen until the real Dashboard is built.
-function Placeholder({ route }) {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 18 }}>Logged in as {route.params?.user?.fullName}</Text>
-      <Text>{route.name} screen coming soon</Text>
-    </View>
-  );
-}
+const RootStack = createNativeStackNavigator();
 
 export default function AppNavigator() {
+  const { isDark, colors } = useTheme();
+
+  // Feed our palette into React Navigation so headers and the tab bar follow it.
+  const navigationTheme = useMemo(() => {
+    const base = isDark ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.primary,
+        background: colors.background,
+        card: colors.card,
+        text: colors.text,
+        border: colors.border,
+        notification: colors.primary,
+      },
+    };
+  }, [isDark, colors]);
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Menu" component={MenuScreen} />
-        <Stack.Screen name="Dashboard" component={Placeholder} />
-      </Stack.Navigator>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme}>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Login" component={LoginScreen} />
+        <RootStack.Screen name="Main" component={MainTabs} />
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
