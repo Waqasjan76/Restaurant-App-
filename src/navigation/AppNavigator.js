@@ -3,10 +3,11 @@ import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
+import MenuScreen from '../screens/MenuScreen';
 
 const Stack = createNativeStackNavigator();
 
-// Temporary landing screens until the real Menu and Dashboard are built.
+// Temporary landing screen until the real Dashboard is built.
 function Placeholder({ route }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -21,7 +22,7 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Menu" component={Placeholder} />
+        <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Dashboard" component={Placeholder} />
       </Stack.Navigator>
     </NavigationContainer>
