@@ -1,14 +1,19 @@
-import React, { createContext, useContext, useMemo, useReducer } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { reservationsReducer } from '../reducers/reservationsReducer';
 import { mockReservations } from '../data/reservations';
+import usePersistedReducer from '../hooks/usePersistedReducer';
 
 // Shared so the customer's booking screen and the manager dashboard see the
-// same list.
+// same list. Persisted in AsyncStorage.
 const ReservationsContext = createContext(undefined);
 
 export function ReservationsProvider({ children }) {
-  const [reservations, dispatch] = useReducer(reservationsReducer, mockReservations);
-  const value = useMemo(() => ({ reservations, dispatch }), [reservations]);
+  const [reservations, dispatch, isHydrated] = usePersistedReducer(
+    '@restaurant/reservations',
+    reservationsReducer,
+    mockReservations
+  );
+  const value = useMemo(() => ({ reservations, dispatch, isHydrated }), [reservations, dispatch, isHydrated]);
   return <ReservationsContext.Provider value={value}>{children}</ReservationsContext.Provider>;
 }
 

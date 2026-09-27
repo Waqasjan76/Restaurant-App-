@@ -35,8 +35,12 @@ export function formatDateLabel(dateStr) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export function formatTime(ts) {
-  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+export function formatTime(ts, withSeconds = false) {
+  return new Date(ts).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    ...(withSeconds && { second: '2-digit' }),
+  });
 }
 
 export function formatDuration(ms) {

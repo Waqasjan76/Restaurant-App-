@@ -13,6 +13,7 @@ import { CATEGORIES, fetchMenu } from '../data/menu';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useMenu } from '../context/MenuContext';
 import { CART_ACTIONS } from '../reducers/cartReducer';
 import MenuItemCard from '../components/MenuItemCard';
 import useDebounce from '../hooks/useDebounce';
@@ -41,6 +42,7 @@ export default function MenuScreen({ navigation }) {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { user } = useAuth();
   const { state: cart, dispatch } = useCart();
+  const { menu } = useMenu(); // live menu, edited by the manager
   const canOrder = user?.role !== 'manager';
 
   const [menuItems, setMenuItems] = useState([]);
@@ -60,6 +62,7 @@ export default function MenuScreen({ navigation }) {
 
   // Holds the in-flight request so Retry / pull to refresh can be cancelled too.
   const requestRef = useRef(null);
+  const hasLoadedRef = useRef(false); // true after the first successful fetch
   const searchInputRef = useRef(null); // the TextInput element
   const listRef = useRef(null); // the FlatList element
   const previousQueryRef = useRef(''); // last query added to the recent list
@@ -78,10 +81,13 @@ export default function MenuScreen({ navigation }) {
     else setIsLoading(true);
     setError(null);
 
-    const request = fetchMenu();
+    const request = fetchMenu(menu);
     requestRef.current = request;
     request.promise
-      .then((items) => setMenuItems(items))
+      .then((items) => {
+        hasLoadedRef.current = true;
+        setMenuItems(items);
+      })
       .catch((e) => setError(e.message))
       .finally(() => {
         setIsLoading(false);
@@ -95,6 +101,12 @@ export default function MenuScreen({ navigation }) {
     loadMenu();
     return () => requestRef.current?.cancel();
   }, []);
+
+  // Manager edits (price, availability, new items) reach an already loaded
+  // menu straight away through MenuContext, without another fake request.
+  useEffect(() => {
+    if (hasLoadedRef.current) setMenuItems(menu);
+  }, [menu]);
 
   // Derived data: the visible list is computed from state, never stored in it.
   // Keeping a separate `filteredItems` state (as in Q4) duplicates information,
@@ -114,8 +126,8 @@ export default function MenuScreen({ navigation }) {
 
   // Keep the header title in sync with the number of items shown.
   useEffect(() => {
-    navigation.setOptions({ title: `Menu (${visibleItems.length} items)` });
-  }, [navigation, visibleItems.length]);
+    navigation.setOptions({ title: isLoading ? 'Menu' : `Menu (${visibleItems.length} items)` });
+  }, [navigation, visibleItems.length, isLoading]);
 
   // menuItemId -> quantity already in the cart
   const quantities = useMemo(

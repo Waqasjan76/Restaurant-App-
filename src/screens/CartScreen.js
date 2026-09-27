@@ -8,6 +8,17 @@ import { lookupPromo } from '../data/promoCodes';
 import { formatPrice } from '../data/menu';
 import QuantityStepper from '../components/QuantityStepper';
 import { confirmAlert } from '../utils/alert';
+import { mockTables } from '../data/tables';
+
+const PICKUP_OFFSETS_MIN = [20, 30, 45, 60];
+
+// Pickup times from now, rounded up to the next 5 minutes, e.g. "18:35".
+const pickupOptions = () =>
+  PICKUP_OFFSETS_MIN.map((mins) => {
+    const d = new Date(Date.now() + mins * 60000);
+    d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
 
 export default function CartScreen({ navigation }) {
   const { state, dispatch, itemCount } = useCart();
@@ -16,6 +27,35 @@ export default function CartScreen({ navigation }) {
 
   const [promoInput, setPromoInput] = useState('');
   const [promoError, setPromoError] = useState('');
+
+  // Order type chosen before checkout.
+  const [orderType, setOrderType] = useState('dine-in'); // 'dine-in' | 'takeaway'
+  const [tableId, setTableId] = useState(null);
+  const [pickupTime, setPickupTime] = useState(null);
+  const [orderError, setOrderError] = useState('');
+  const pickupTimes = useMemo(pickupOptions, []);
+
+  const chooseType = (type) => {
+    setOrderType(type);
+    setOrderError('');
+  };
+
+  const goToSummary = () => {
+    if (orderType === 'dine-in' && !tableId) {
+      setOrderError('Choose the table you are sitting at.');
+      return;
+    }
+    if (orderType === 'takeaway' && !pickupTime) {
+      setOrderError('Choose a pickup time.');
+      return;
+    }
+    setOrderError('');
+    navigation.navigate('OrderSummary', {
+      orderType,
+      tableId: orderType === 'dine-in' ? tableId : null,
+      pickupTime: orderType === 'takeaway' ? pickupTime : null,
+    });
+  };
 
   const subtotal = state.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const discount = (subtotal * state.discountPercent) / 100;
@@ -158,7 +198,56 @@ export default function CartScreen({ navigation }) {
               )}
             </View>
 
-            <Pressable style={styles.checkoutButton} onPress={() => navigation.navigate('OrderSummary')}>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>How would you like it?</Text>
+              <View style={styles.segment}>
+                {[
+                  ['dine-in', '🍽️ Dine-in'],
+                  ['takeaway', '🥡 Takeaway'],
+                ].map(([key, label]) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => chooseType(key)}
+                    style={[styles.segmentItem, orderType === key && styles.segmentActive]}
+                  >
+                    <Text style={[styles.segmentText, orderType === key && styles.segmentTextActive]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text style={[styles.muted, styles.optionLabel]}>
+                {orderType === 'dine-in' ? 'Your table' : 'Pickup time'}
+              </Text>
+              <View style={styles.optionRow}>
+                {orderType === 'dine-in'
+                  ? mockTables.map((t) => (
+                      <Pressable
+                        key={t.id}
+                        onPress={() => {
+                          setTableId(t.id);
+                          setOrderError('');
+                        }}
+                        style={[styles.option, tableId === t.id && styles.optionActive]}
+                      >
+                        <Text style={[styles.optionText, tableId === t.id && styles.optionTextActive]}>{t.name}</Text>
+                      </Pressable>
+                    ))
+                  : pickupTimes.map((time) => (
+                      <Pressable
+                        key={time}
+                        onPress={() => {
+                          setPickupTime(time);
+                          setOrderError('');
+                        }}
+                        style={[styles.option, pickupTime === time && styles.optionActive]}
+                      >
+                        <Text style={[styles.optionText, pickupTime === time && styles.optionTextActive]}>{time}</Text>
+                      </Pressable>
+                    ))}
+              </View>
+              {orderError ? <Text style={styles.error}>{orderError}</Text> : null}
+            </View>
+
+            <Pressable style={styles.checkoutButton} onPress={goToSummary}>
               <Text style={styles.checkoutText}>Review order →</Text>
             </Pressable>
           </View>
@@ -232,6 +321,23 @@ const createStyles = (c) =>
       marginTop: 4,
     },
     checkoutText: { color: c.onPrimary, fontWeight: '800', fontSize: 16 },
+    segment: { flexDirection: 'row', backgroundColor: c.subtle, borderRadius: 10, padding: 3 },
+    segmentItem: { flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center' },
+    segmentActive: { backgroundColor: c.card },
+    segmentText: { color: c.textMuted, fontWeight: '700' },
+    segmentTextActive: { color: c.primary },
+    optionLabel: { marginTop: 12, marginBottom: 6 },
+    optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    option: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    optionActive: { backgroundColor: c.primary, borderColor: c.primary },
+    optionText: { color: c.text, fontWeight: '600', fontSize: 13 },
+    optionTextActive: { color: c.onPrimary },
     empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: c.background },
     emptyEmoji: { fontSize: 52 },
     emptyTitle: { color: c.text, fontSize: 18, fontWeight: '700', marginVertical: 6 },

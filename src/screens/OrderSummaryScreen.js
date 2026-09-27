@@ -1,12 +1,19 @@
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useOrders } from '../context/OrdersContext';
+import { CART_ACTIONS } from '../reducers/cartReducer';
+import { mockTables } from '../data/tables';
 import { useTheme } from '../context/ThemeContext';
 import { formatPrice } from '../data/menu';
 import { SALES_TAX_RATE, SERVICE_CHARGE_RATE, calculateTotals } from '../utils/pricing';
 
-export default function OrderSummaryScreen() {
-  const { state } = useCart();
+export default function OrderSummaryScreen({ navigation, route }) {
+  const { orderType = 'dine-in', tableId = null, pickupTime = null } = route.params ?? {};
+  const { state, dispatch } = useCart();
+  const { user } = useAuth();
+  const { placeOrder } = useOrders();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { items, discountPercent, promoCode } = state;
@@ -15,8 +22,39 @@ export default function OrderSummaryScreen() {
   // unrelated re-renders (theme toggle, navigation param changes, ...).
   const totals = useMemo(() => calculateTotals(items, discountPercent), [items, discountPercent]);
 
+  const table = mockTables.find((t) => t.id === tableId);
+
+  const handlePlaceOrder = () => {
+    const order = placeOrder({ user, items, totals, type: orderType, tableId, pickupTime });
+    dispatch({ type: CART_ACTIONS.CLEAR_CART });
+    navigation.popToTop();
+    // Open tracking inside the Orders tab, with My Orders underneath it.
+    navigation.navigate('OrdersTab', {
+      screen: 'OrderTracking',
+      params: { orderId: order.id },
+      initial: false,
+    });
+  };
+
+  if (items.length === 0) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Text style={styles.lineLabel}>Your cart is empty.</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Order type</Text>
+        <Text style={styles.itemName}>
+          {orderType === 'dine-in'
+            ? `🍽️ Dine-in at ${table ? `${table.name} (${table.area})` : 'your table'}`
+            : `🥡 Takeaway, pickup at ${pickupTime}`}
+        </Text>
+      </View>
+
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Items</Text>
         {items.map((item) => (
@@ -53,6 +91,11 @@ export default function OrderSummaryScreen() {
         <View style={styles.divider} />
         <Line label="Grand total" value={formatPrice(totals.grandTotal)} styles={styles} bold />
       </View>
+
+      <Text style={styles.payNote}>Payment is made at the counter. No card details are needed.</Text>
+      <Pressable style={styles.placeButton} onPress={handlePlaceOrder}>
+        <Text style={styles.placeText}>Place order · {formatPrice(totals.grandTotal)}</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -90,4 +133,8 @@ const createStyles = (c) =>
     lineValue: { color: c.text, fontWeight: '600' },
     bold: { color: c.text, fontWeight: '800', fontSize: 17 },
     divider: { height: 1, backgroundColor: c.border, marginVertical: 6 },
+    center: { alignItems: 'center', justifyContent: 'center' },
+    payNote: { color: c.textMuted, fontSize: 12, textAlign: 'center', marginBottom: 10 },
+    placeButton: { backgroundColor: c.primary, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+    placeText: { color: c.onPrimary, fontWeight: '800', fontSize: 16 },
   });

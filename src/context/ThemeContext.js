@@ -1,16 +1,18 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { darkColors, lightColors } from '../theme/palette';
+import { usePersistedState } from '../hooks/usePersistedReducer';
 
 const ThemeContext = createContext(undefined);
 
 export function ThemeProvider({ children }) {
-  const [isDark, setIsDark] = useState(false);
+  // The theme choice is remembered between launches.
+  const [isDark, setIsDark, isHydrated] = usePersistedState('@restaurant/isDark', false);
 
-  const toggleTheme = useCallback(() => setIsDark((d) => !d), []);
+  const toggleTheme = useCallback(() => setIsDark((d) => !d), [setIsDark]);
 
   const value = useMemo(
-    () => ({ isDark, toggleTheme, colors: isDark ? darkColors : lightColors }),
-    [isDark, toggleTheme]
+    () => ({ isDark, toggleTheme, colors: isDark ? darkColors : lightColors, isHydrated }),
+    [isDark, toggleTheme, isHydrated]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

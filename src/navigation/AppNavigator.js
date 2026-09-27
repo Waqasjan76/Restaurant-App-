@@ -2,14 +2,23 @@ import React, { useMemo } from 'react';
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { useMenu } from '../context/MenuContext';
+import { useOrders } from '../context/OrdersContext';
+import { useReservations } from '../context/ReservationsContext';
 import LoginScreen from '../screens/LoginScreen';
+import LoadingScreen from '../screens/LoadingScreen';
 import MainTabs from './MainTabs';
 import { navigationRef } from './navigationRef';
 
 const RootStack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { isDark, colors } = useTheme();
+  const { isDark, colors, isHydrated: themeReady } = useTheme();
+  const { isHydrated: accountsReady } = useAuth();
+  const { isHydrated: menuReady } = useMenu();
+  const { isHydrated: ordersReady } = useOrders();
+  const { isHydrated: reservationsReady } = useReservations();
 
   // Feed our palette into React Navigation so headers and the tab bar follow it.
   const navigationTheme = useMemo(() => {
@@ -27,6 +36,11 @@ export default function AppNavigator() {
       },
     };
   }, [isDark, colors]);
+
+  // Wait until everything saved in AsyncStorage has been loaded.
+  if (!(themeReady && accountsReady && menuReady && ordersReady && reservationsReady)) {
+    return <LoadingScreen />;
+  }
 
   return (
     <NavigationContainer ref={navigationRef} theme={navigationTheme}>

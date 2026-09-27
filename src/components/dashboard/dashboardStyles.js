@@ -1,0 +1,61 @@
+import { StyleSheet } from 'react-native';
+
+// Shared styles for the three Manager Dashboard panels.
+export const createDashboardStyles = (c) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: c.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: c.border,
+      padding: 14,
+      marginBottom: 10,
+      gap: 4,
+    },
+    row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    title: { color: c.text, fontWeight: '700', fontSize: 15, flexShrink: 1 },
+    text: { color: c.text },
+    muted: { color: c.textMuted, fontSize: 13 },
+    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+    actionButton: {
+      backgroundColor: c.primary,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    actionText: { color: c.onPrimary, fontWeight: '700', fontSize: 13 },
+    outlineButton: {
+      borderWidth: 1,
+      borderColor: c.danger,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    outlineText: { color: c.danger, fontWeight: '700', fontSize: 13 },
+    successButton: { backgroundColor: c.success },
+    empty: { color: c.textMuted, textAlign: 'center', marginTop: 32 },
+    sectionTitle: { color: c.text, fontWeight: '800', fontSize: 16, marginVertical: 8 },
+    input: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      color: c.text,
+      backgroundColor: c.input,
+    },
+    inputError: { borderColor: c.danger },
+    error: { color: c.danger, fontSize: 12 },
+    label: { color: c.text, fontWeight: '600', fontSize: 13, marginTop: 6 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    chip: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 14,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+    },
+    chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+    chipText: { color: c.text, fontSize: 12, fontWeight: '600' },
+    chipTextActive: { color: c.onPrimary },
+  });
