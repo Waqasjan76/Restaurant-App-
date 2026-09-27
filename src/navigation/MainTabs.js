@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import MenuScreen from '../screens/MenuScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
+import OrderSummaryScreen from '../screens/OrderSummaryScreen';
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
@@ -44,6 +45,7 @@ function CartStackScreen() {
   return (
     <CartStack.Navigator>
       <CartStack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
+      <CartStack.Screen name="OrderSummary" component={OrderSummaryScreen} options={{ title: 'Order Summary' }} />
     </CartStack.Navigator>
   );
 }

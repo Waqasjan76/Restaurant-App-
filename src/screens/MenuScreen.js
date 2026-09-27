@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,16 +9,31 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { CATEGORIES, fetchMenu, formatPrice } from '../data/menu';
+import { CATEGORIES, fetchMenu } from '../data/menu';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { CART_ACTIONS } from '../reducers/cartReducer';
+import MenuItemCard from '../components/MenuItemCard';
 
 const ALL = 'All';
 const SEARCH_DEBOUNCE_MS = 400;
 const BACK_TO_TOP_OFFSET = 300;
 const MAX_RECENT_SEARCHES = 5;
+
+const SORT_OPTIONS = [
+  { key: 'default', label: 'Popular' },
+  { key: 'priceAsc', label: 'Price ↑' },
+  { key: 'priceDesc', label: 'Price ↓' },
+  { key: 'nameAsc', label: 'A–Z' },
+];
+
+const SORTERS = {
+  default: null,
+  priceAsc: (a, b) => a.price - b.price,
+  priceDesc: (a, b) => b.price - a.price,
+  nameAsc: (a, b) => a.name.localeCompare(b.name),
+};
 
 export default function MenuScreen({ navigation }) {
   const { colors } = useTheme();
@@ -26,15 +41,14 @@ export default function MenuScreen({ navigation }) {
   const { user } = useAuth();
   const { state: cart, dispatch } = useCart();
   const canOrder = user?.role !== 'manager';
-  // menuItemId -> quantity already in the cart
-  const quantities = Object.fromEntries(cart.items.map((i) => [i.id, i.quantity]));
 
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(ALL);
-  const [filteredItems, setFilteredItems] = useState([]);
+  const [sortOrder, setSortOrder] = useState('default');
+  const [favourites, setFavourites] = useState([]); // array of menu item ids
 
   // Search state: what is typed vs. what is applied after the debounce.
   const [searchText, setSearchText] = useState('');
@@ -85,24 +99,56 @@ export default function MenuScreen({ navigation }) {
   // Clear any pending debounce timer when the screen unmounts.
   useEffect(() => () => clearTimeout(debounceTimerRef.current), []);
 
-  // Re-filter whenever the category, the loaded items or the applied search change.
-  useEffect(() => {
+  // Derived data: the visible list is computed from state, never stored in it.
+  // Keeping a separate `filteredItems` state (as in Q4) duplicates information,
+  // needs an extra effect to stay in sync, costs an extra render after every
+  // change and can briefly show stale results. useMemo recomputes it during
+  // render, and only when one of its inputs actually changes.
+  const visibleItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    setFilteredItems(
-      menuItems.filter(
-        (item) =>
-          (selectedCategory === ALL || item.category === selectedCategory) &&
-          (!q ||
-            item.name.toLowerCase().includes(q) ||
-            item.description.toLowerCase().includes(q))
-      )
+    const result = menuItems.filter(
+      (item) =>
+        (selectedCategory === ALL || item.category === selectedCategory) &&
+        (!q || item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q))
     );
-  }, [selectedCategory, menuItems, searchQuery]);
+    const sorter = SORTERS[sortOrder];
+    return sorter ? [...result].sort(sorter) : result;
+  }, [menuItems, selectedCategory, searchQuery, sortOrder]);
 
   // Keep the header title in sync with the number of items shown.
   useEffect(() => {
-    navigation.setOptions({ title: `Menu (${filteredItems.length} items)` });
-  }, [navigation, filteredItems.length]);
+    navigation.setOptions({ title: `Menu (${visibleItems.length} items)` });
+  }, [navigation, visibleItems.length]);
+
+  // menuItemId -> quantity already in the cart
+  const quantities = useMemo(
+    () => Object.fromEntries(cart.items.map((i) => [i.id, i.quantity])),
+    [cart.items]
+  );
+
+  // Stable handler references so React.memo on MenuItemCard can skip renders.
+  const handleAddToCart = useCallback(
+    (item) => dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: item }),
+    [dispatch]
+  );
+
+  const handleToggleFavourite = useCallback((id) => {
+    setFavourites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <MenuItemCard
+        item={item}
+        quantity={quantities[item.id] ?? 0}
+        isFavourite={favourites.includes(item.id)}
+        canOrder={canOrder}
+        onAddToCart={handleAddToCart}
+        onToggleFavourite={handleToggleFavourite}
+      />
+    ),
+    [quantities, favourites, canOrder, handleAddToCart, handleToggleFavourite]
+  );
 
   const applySearch = (text) => {
     setSearchQuery(text);
@@ -167,46 +213,6 @@ export default function MenuScreen({ navigation }) {
     );
   }
 
-  const renderItem = ({ item }) => {
-    const unavailable = !item.isAvailable;
-    return (
-      <View style={[styles.card, unavailable && styles.cardDisabled]}>
-        <View style={[styles.imageTile, { backgroundColor: colors.tiles[item.category] }]}>
-          <Text style={styles.imageEmoji}>{item.image}</Text>
-        </View>
-        <View style={styles.cardBody}>
-          <View style={styles.cardTitleRow}>
-            <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
-            {item.isSpecial && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Daily Special</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
-          <View style={styles.cardFooter}>
-            <Text style={styles.price}>{formatPrice(item.price)}</Text>
-            {canOrder && (
-              <Pressable
-                disabled={unavailable}
-                onPress={() => dispatch({ type: CART_ACTIONS.ADD_ITEM, payload: item })}
-                style={[styles.addButton, unavailable && styles.addButtonDisabled]}
-              >
-                <Text style={styles.addText}>
-                  {unavailable
-                    ? 'Unavailable'
-                    : quantities[item.id]
-                      ? `+ Add (${quantities[item.id]})`
-                      : '+ Add'}
-                </Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  };
-
   const showSuggestions = isSearchFocused && !searchText && recentSearches.length > 0;
 
   return (
@@ -249,11 +255,7 @@ export default function MenuScreen({ navigation }) {
       )}
 
       <View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipRow}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
           {[ALL, ...CATEGORIES].map((cat) => {
             const active = cat === selectedCategory;
             return (
@@ -269,11 +271,27 @@ export default function MenuScreen({ navigation }) {
         </ScrollView>
       </View>
 
-      <Text style={styles.debugLabel}>renders: {renderCount.current}</Text>
+      <View style={styles.sortRow}>
+        <Text style={styles.debugLabel}>renders: {renderCount.current}</Text>
+        <View style={styles.sortOptions}>
+          {SORT_OPTIONS.map((opt) => {
+            const active = opt.key === sortOrder;
+            return (
+              <Pressable
+                key={opt.key}
+                onPress={() => setSortOrder(opt.key)}
+                style={[styles.sortChip, active && styles.sortChipActive]}
+              >
+                <Text style={[styles.sortText, active && styles.sortTextActive]}>{opt.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
 
       <FlatList
         ref={listRef}
-        data={filteredItems}
+        data={visibleItems}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
@@ -287,7 +305,9 @@ export default function MenuScreen({ navigation }) {
             <Text style={styles.emptyEmoji}>🍽️</Text>
             <Text style={styles.emptyTitle}>No dishes found</Text>
             <Text style={styles.muted}>
-              Nothing matches "{searchQuery}". Try another word or category.
+              {searchQuery
+                ? `Nothing matches "${searchQuery}". Try another word or category.`
+                : 'No dishes in this category right now.'}
             </Text>
           </View>
         }
@@ -330,7 +350,7 @@ const createStyles = (c) =>
     suggestionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
     suggestionChip: { backgroundColor: c.subtle, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5 },
     suggestionText: { color: c.text, fontSize: 13 },
-    chipRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
+    chipRow: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 6, gap: 8 },
     chip: {
       paddingHorizontal: 16,
       paddingVertical: 8,
@@ -342,31 +362,20 @@ const createStyles = (c) =>
     chipActive: { backgroundColor: c.primary, borderColor: c.primary },
     chipText: { color: c.text, fontWeight: '600' },
     chipTextActive: { color: c.onPrimary },
-    debugLabel: { fontSize: 11, color: c.textMuted, marginHorizontal: 14, marginBottom: 4 },
-    list: { paddingHorizontal: 12, paddingBottom: 80 },
-    card: {
+    sortRow: {
       flexDirection: 'row',
-      backgroundColor: c.card,
-      borderRadius: 14,
-      padding: 10,
-      marginBottom: 10,
-      borderWidth: 1,
-      borderColor: c.border,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 12,
+      paddingBottom: 6,
     },
-    cardDisabled: { opacity: 0.45 },
-    imageTile: { width: 76, height: 76, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    imageEmoji: { fontSize: 38 },
-    cardBody: { flex: 1, marginLeft: 12 },
-    cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    cardTitle: { fontSize: 16, fontWeight: '700', color: c.text, flexShrink: 1 },
-    badge: { backgroundColor: c.warning, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-    badgeText: { fontSize: 10, fontWeight: '700', color: c.onWarning },
-    cardDesc: { color: c.textMuted, fontSize: 13, marginTop: 2 },
-    cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-    price: { fontSize: 15, fontWeight: '700', color: c.primary },
-    addButton: { backgroundColor: c.primary, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 6 },
-    addButtonDisabled: { backgroundColor: c.disabled },
-    addText: { color: c.onPrimary, fontWeight: '700', fontSize: 13 },
+    sortOptions: { flexDirection: 'row', gap: 4 },
+    sortChip: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+    sortChipActive: { backgroundColor: c.subtle },
+    sortText: { color: c.textMuted, fontSize: 12, fontWeight: '600' },
+    sortTextActive: { color: c.primary },
+    debugLabel: { fontSize: 11, color: c.textMuted },
+    list: { paddingHorizontal: 12, paddingBottom: 80 },
     empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 },
     emptyEmoji: { fontSize: 44 },
     emptyTitle: { fontSize: 17, fontWeight: '700', color: c.text, marginTop: 8 },

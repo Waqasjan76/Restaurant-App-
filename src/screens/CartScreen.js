@@ -157,6 +157,10 @@ export default function CartScreen({ navigation }) {
                 </View>
               )}
             </View>
+
+            <Pressable style={styles.checkoutButton} onPress={() => navigation.navigate('OrderSummary')}>
+              <Text style={styles.checkoutText}>Review order →</Text>
+            </Pressable>
           </View>
         }
       />
@@ -220,6 +224,14 @@ const createStyles = (c) =>
       marginTop: 16,
     },
     primaryText: { color: c.onPrimary, fontWeight: '700' },
+    checkoutButton: {
+      backgroundColor: c.primary,
+      borderRadius: 12,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginTop: 4,
+    },
+    checkoutText: { color: c.onPrimary, fontWeight: '800', fontSize: 16 },
     empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: c.background },
     emptyEmoji: { fontSize: 52 },
     emptyTitle: { color: c.text, fontSize: 18, fontWeight: '700', marginVertical: 6 },

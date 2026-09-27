@@ -33,3 +33,7 @@ Burger = `m7` (Rs. 950), Chai = `m17` (Rs. 200). These are automated in `src/red
 ### Q7: useReducer vs useState for the cart
 
 The cart has several pieces of state that change together (items, quantities, notes, promo code, discount) and eight different ways to change them. With `useState`, that logic would be spread across many handlers in different screens, and each one would have to copy arrays correctly. `useReducer` puts every transition in one pure function, which is easy to read, unit test (see the table above) and share through `CartContext` with a single `dispatch`. `useState` would have been enough for a single field such as a quantity counter, or a cart that only supports "add" with no promo codes or notes.
+
+### Q8: When not to use useMemo and useCallback
+
+Memoisation is not free. React has to store the previous value, keep the dependency array and compare it on every render. For cheap work, such as adding two numbers, formatting a price or filtering a list of about twenty items, that overhead can cost more than just recomputing. `useCallback` only helps when the function is passed to a child wrapped in `React.memo`, or used as an effect or hook dependency. Wrapping a handler that goes to a plain `<Pressable>` gains nothing. Memoising also adds bugs when dependency arrays are wrong: stale values, or a memo that never updates. Measure first (for example the render logs in `MenuItemCard`) and optimise only the real hot paths, such as long lists or expensive derived data.
