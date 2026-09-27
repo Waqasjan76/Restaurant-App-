@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { useOrders } from '../context/OrdersContext';
 import { useTheme } from '../context/ThemeContext';
 import StatusBadge from '../components/StatusBadge';
@@ -37,9 +38,11 @@ export default function OrderTrackingScreen({ route }) {
   }, [isFinal]);
 
   // Automatic status progress: Pending -> Preparing (10 s) -> Ready (20 s)
-  // -> Served (30 s). Stops once a manager has changed the status by hand.
+  // -> Served (30 s). Stops once a manager has changed the status by hand,
+  // and only runs while this screen is focused (tabs keep screens mounted).
+  const isFocused = useIsFocused();
   useEffect(() => {
-    if (!order || isFinal || order.manualOverride) return undefined;
+    if (!order || isFinal || order.manualOverride || !isFocused) return undefined;
     const progress = setInterval(() => {
       const target = statusForElapsed(Date.now() - order.timestamp);
       if (ORDER_FLOW.indexOf(target) > ORDER_FLOW.indexOf(order.status)) {
@@ -47,7 +50,7 @@ export default function OrderTrackingScreen({ route }) {
       }
     }, 1000);
     return () => clearInterval(progress);
-  }, [order?.id, order?.status, order?.timestamp, order?.manualOverride, isFinal, updateStatus]);
+  }, [order?.id, order?.status, order?.timestamp, order?.manualOverride, isFinal, isFocused, updateStatus]);
 
   if (!order) {
     return (
