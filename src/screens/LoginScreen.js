@@ -11,17 +11,17 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { authenticate, registerUser, toPublicUser } from '../data/users';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { validateAuth } from '../utils/validation';
 import useForm from '../hooks/useForm';
 import { showAlert } from '../utils/alert';
+import BackendStatus from '../components/BackendStatus';
 
-const EMPTY_FORM = { fullName: '', email: '', password: '', confirmPassword: '' };
+const EMPTY_FORM = { fullName: '', email: '', password: '', confirmPassword: '', managerCode: '' };
 
 export default function LoginScreen({ navigation }) {
-  const { accounts, login, register } = useAuth();
+  const { login, register } = useAuth();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -33,7 +33,7 @@ export default function LoginScreen({ navigation }) {
   const isSignup = mode === 'signup';
 
   // Form values, errors, submit flag and validation now come from useForm.
-  const validate = useCallback((v) => validateAuth(v, mode), [mode]);
+  const validate = useCallback((v) => validateAuth({ ...v, role }, mode), [mode, role]);
   const { values, errors, handleChange, handleSubmit, reset, isSubmitting } = useForm(EMPTY_FORM, validate);
 
   const switchMode = () => {
@@ -43,17 +43,13 @@ export default function LoginScreen({ navigation }) {
 
   const submit = handleSubmit(async (formValues) => {
     try {
-      let user;
       if (isSignup) {
-        const created = await registerUser({ ...formValues, role }, accounts);
-        register(created);
-        user = toPublicUser(created);
+        await register({ ...formValues, role });
       } else {
-        user = await authenticate(formValues.email, formValues.password, accounts);
+        await login(formValues.email, formValues.password);
       }
       // Store the user globally, then replace the auth stack with the app.
       // MainTabs opens on Menu for customers and Dashboard for managers.
-      login(user);
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (e) {
       showAlert(isSignup ? 'Signup failed' : 'Login failed', e.message);
@@ -81,6 +77,7 @@ export default function LoginScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <Text style={styles.logo}>🍽️</Text>
           <Text style={styles.title}>{isSignup ? 'Create an account' : 'Welcome back'}</Text>
+          <BackendStatus />
           <Text style={styles.subtitle}>
             {isSignup ? 'Sign up to order food and book tables.' : 'Log in to browse the menu and order.'}
           </Text>
@@ -103,6 +100,12 @@ export default function LoginScreen({ navigation }) {
               placeholder: 'Repeat your password',
               onSubmitEditing: submit,
               secureTextEntry: !showPassword,
+              autoCapitalize: 'none',
+            })}
+          {isSignup && role === 'manager' &&
+            renderField('managerCode', 'Manager invitation code', {
+              placeholder: 'Provided by the restaurant owner',
+              secureTextEntry: true,
               autoCapitalize: 'none',
             })}
 

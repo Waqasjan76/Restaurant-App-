@@ -1,19 +1,38 @@
-import React, { createContext, useCallback, useContext, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { ORDER_ACTIONS, ordersReducer } from '../reducers/ordersReducer';
 import usePersistedReducer from '../hooks/usePersistedReducer';
+import { useAuth } from './AuthContext';
+import { api } from '../services/api';
+import { showAlert } from '../utils/alert';
 
 const OrdersContext = createContext(undefined);
 
 export function OrdersProvider({ children }) {
   const [orders, dispatch, isHydrated] = usePersistedReducer('@restaurant/orders', ordersReducer, []);
+  const { user } = useAuth();
 
-  // Creates an order in status Pending and returns it.
-  const placeOrder = useCallback(({ user, items, totals, type, tableId, pickupTime }) => {
+  useEffect(() => {
+    if (!user) return undefined;
+    let active = true;
+    api
+      .getOrders()
+      .then((serverOrders) => {
+        if (active) dispatch({ type: 'REPLACE_ORDERS', payload: serverOrders });
+      })
+      .catch((error) => {
+        if (active) showAlert('Could not sync orders', error.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user, dispatch]);
+
+  const placeOrder = useCallback(async ({ user: customer, items, totals, type, tableId, pickupTime }) => {
     const timestamp = Date.now();
     const order = {
-      id: `ORD-${String(timestamp).slice(-6)}`,
-      userId: user.id,
-      customerName: user.fullName,
+      id: `ORD-${timestamp}`,
+      userId: customer.id,
+      customerName: customer.fullName,
       items: items.map(({ id, name, price, quantity, note, image }) => ({ id, name, price, quantity, note, image })),
       totals,
       total: totals.grandTotal,
@@ -25,13 +44,22 @@ export function OrdersProvider({ children }) {
       manualOverride: false,
       timestamp,
     };
-    dispatch({ type: ORDER_ACTIONS.PLACE_ORDER, payload: order });
-    return order;
+    const savedOrder = await api.createOrder(order);
+    dispatch({ type: ORDER_ACTIONS.PLACE_ORDER, payload: savedOrder });
+    return savedOrder;
   }, [dispatch]);
 
   const updateStatus = useCallback(
-    (id, status, manual = false) =>
-      dispatch({ type: ORDER_ACTIONS.UPDATE_STATUS, payload: { id, status, manual } }),
+    async (id, status, manual = false) => {
+      try {
+        await api.updateOrder(id, { status, manual });
+        dispatch({ type: ORDER_ACTIONS.UPDATE_STATUS, payload: { id, status, manual } });
+        return true;
+      } catch (error) {
+        showAlert('Order update failed', error.message);
+        return false;
+      }
+    },
     [dispatch]
   );
 

@@ -23,6 +23,8 @@ export const canTransition = (from, to) => ALLOWED_TRANSITIONS[from]?.includes(t
 
 export function ordersReducer(state, action) {
   switch (action.type) {
+    case 'REPLACE_ORDERS':
+      return action.payload;
     case ORDER_ACTIONS.PLACE_ORDER:
       return [action.payload, ...state];
 

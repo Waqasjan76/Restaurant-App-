@@ -9,6 +9,8 @@ export const ACTIVE_STATUSES = ['Pending', 'Accepted'];
 
 export function reservationsReducer(state, action) {
   switch (action.type) {
+    case 'REPLACE_RESERVATIONS':
+      return action.payload;
     case RESERVATION_ACTIONS.ADD:
       return [action.payload, ...state];
     case RESERVATION_ACTIONS.CANCEL:

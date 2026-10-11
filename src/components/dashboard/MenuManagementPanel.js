@@ -29,12 +29,15 @@ function MenuRow({ item, styles, colors, dispatch }) {
   const [draftPrice, setDraftPrice] = useState(String(item.price));
   const dirty = draftPrice !== String(item.price);
 
-  const save = () => {
+  const save = async () => {
     if (!isValidPrice(draftPrice)) {
       showAlert('Invalid price', 'Enter a price greater than 0.');
       return;
     }
-    dispatch({ type: MENU_ACTIONS.UPDATE_PRICE, payload: { id: item.id, price: parsePrice(draftPrice) } });
+    await dispatch({
+      type: MENU_ACTIONS.UPDATE_PRICE,
+      payload: { id: item.id, price: parsePrice(draftPrice) },
+    });
   };
 
   return (
@@ -84,8 +87,8 @@ export default function MenuManagementPanel({ styles }) {
   const [showForm, setShowForm] = useState(false);
   const { values, errors, handleChange, handleSubmit, reset } = useForm(EMPTY_ITEM, validateItem);
 
-  const addItem = handleSubmit((v) => {
-    dispatch({
+  const addItem = handleSubmit(async (v) => {
+    const saved = await dispatch({
       type: MENU_ACTIONS.ADD_ITEM,
       payload: {
         id: `m${Date.now()}`,
@@ -98,6 +101,7 @@ export default function MenuManagementPanel({ styles }) {
         isAvailable: true,
       },
     });
+    if (!saved) return;
     reset();
     setShowForm(false);
     showAlert('Item added', `${v.name.trim()} is now on the customer menu.`);

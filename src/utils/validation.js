@@ -18,5 +18,8 @@ export function validateAuth(values, mode) {
   if (mode === 'signup' && values.password !== values.confirmPassword) {
     errors.confirmPassword = 'Passwords do not match.';
   }
+  if (mode === 'signup' && values.role === 'manager' && !values.managerCode?.trim()) {
+    errors.managerCode = 'A manager invitation code is required.';
+  }
   return errors;
 }

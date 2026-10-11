@@ -1,11 +1,8 @@
-// Local mock menu. `image` holds an emoji so the app works fully offline
-// without any image CDN; the card renders it on a coloured tile.
+import { api } from '../services/api';
+
+// `image` holds an emoji so the app works without an image CDN.
 
 export const CATEGORIES = ['Starters', 'Mains', 'Desserts', 'Drinks'];
-
-export const MENU_LOAD_DELAY_MS = 1500;
-// Chance that the simulated request fails, so the error + Retry UI can be seen.
-export const MENU_FAILURE_RATE = 0.1;
 
 export const menu = [
   { id: 'm1', name: 'Chicken Corn Soup', description: 'Thick, peppery soup with shredded chicken and sweet corn.', price: 450, category: 'Starters', image: '🍲', isSpecial: false, isAvailable: true },
@@ -19,30 +16,22 @@ export const menu = [
   { id: 'm9', name: 'Margherita Pizza', description: 'Tomato sauce, mozzarella and fresh basil on a thin crust.', price: 1200, category: 'Mains', image: '🍕', isSpecial: false, isAvailable: true },
   { id: 'm10', name: 'Grilled Steak', description: '250g sirloin with pepper sauce, mash and sauteed vegetables.', price: 2400, category: 'Mains', image: '🥩', isSpecial: false, isAvailable: false },
   { id: 'm11', name: 'Alfredo Pasta', description: 'Fettuccine in a creamy parmesan sauce with grilled chicken.', price: 1100, category: 'Mains', image: '🍝', isSpecial: false, isAvailable: true },
-  { id: 'm12', name: 'Chocolate Lava Cake', description: 'Warm molten chocolate cake with vanilla ice cream.', price: 650, category: 'Desserts', image: '🍫', isSpecial: true, isAvailable: true },
-  { id: 'm13', name: 'Gulab Jamun', description: 'Three soft milk dumplings soaked in rose syrup.', price: 300, category: 'Desserts', image: '🍡', isSpecial: false, isAvailable: true },
-  { id: 'm14', name: 'New York Cheesecake', description: 'Baked cheesecake with a strawberry compote.', price: 700, category: 'Desserts', image: '🍰', isSpecial: false, isAvailable: true },
-  { id: 'm15', name: 'Kulfi Falooda', description: 'Traditional pistachio kulfi with vermicelli and basil seeds.', price: 450, category: 'Desserts', image: '🍨', isSpecial: false, isAvailable: true },
+  { id: 'm12', name: 'Chocolate Lava Cake', description: 'Warm molten chocolate cake with vanilla ice cream.', price: 650, category: 'Thrusday', image: '🍫', isSpecial: true, isAvailable: true },
+  { id: 'm13', name: 'Gulab Jamun', description: 'Three soft milk dumplings soaked in rose syrup.', price: 300, category: 'Thrusday', image: '🍡', isSpecial: false, isAvailable: true },
+  { id: 'm14', name: 'New York Cheesecake', description: 'Baked cheesecake with a strawberry compote.', price: 700, category: 'Thrusday', image: '🍰', isSpecial: false, isAvailable: true },
+  { id: 'm15', name: 'Kulfi Falooda', description: 'Traditional pistachio kulfi with vermicelli and basil seeds.', price: 450, category: 'Thrusday', image: '🍨', isSpecial: false, isAvailable: true },
   { id: 'm16', name: 'Mint Margarita', description: 'Blended mint, lemon and soda. Refreshing and ice cold.', price: 350, category: 'Drinks', image: '🍹', isSpecial: false, isAvailable: true },
   { id: 'm17', name: 'Doodh Patti Chai', description: 'Strong milky tea brewed with cardamom.', price: 200, category: 'Drinks', image: '☕', isSpecial: true, isAvailable: true },
   { id: 'm18', name: 'Mango Smoothie', description: 'Seasonal mangoes blended with yoghurt and honey.', price: 480, category: 'Drinks', image: '🥭', isSpecial: false, isAvailable: true },
   { id: 'm19', name: 'Fresh Lime Soda', description: 'Sweet or salty, made with fresh limes.', price: 250, category: 'Drinks', image: '🍋', isSpecial: false, isAvailable: true },
 ];
 
-// Simulates GET /menu. Returns the promise plus a cancel function that clears
-// the pending timer (the promise then never settles, so no state update runs).
-export function fetchMenu(source = menu) {
-  let timer;
-  const promise = new Promise((resolve, reject) => {
-    timer = setTimeout(() => {
-      if (Math.random() < MENU_FAILURE_RATE) {
-        reject(new Error('Could not load the menu. Check your connection and try again.'));
-      } else {
-        resolve(source.map((item) => ({ ...item })));
-      }
-    }, MENU_LOAD_DELAY_MS);
-  });
-  return { promise, cancel: () => clearTimeout(timer) };
+export function fetchMenu() {
+  const controller = new AbortController();
+  return {
+    promise: api.getMenu(controller.signal),
+    cancel: () => controller.abort(),
+  };
 }
 
 export const formatPrice = (value) => `Rs. ${Math.round(value).toLocaleString('en-US')}`;

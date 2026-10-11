@@ -1,0 +1,21 @@
+[
+  { "id": "m1", "name": "Chicken Corn Soup", "description": "Thick, peppery soup with shredded chicken and sweet corn.", "price": 450, "category": "Starters", "image": "🍲", "isSpecial": false, "isAvailable": true },
+  { "id": "m2", "name": "Crispy Fish Bites", "description": "Lemon-marinated fish, fried golden with tartar dip.", "price": 750, "category": "Starters", "image": "🐟", "isSpecial": true, "isAvailable": true },
+  { "id": "m3", "name": "Loaded Fries", "description": "Fries topped with cheese sauce, jalapenos and chicken.", "price": 550, "category": "Starters", "image": "🍟", "isSpecial": false, "isAvailable": true },
+  { "id": "m4", "name": "Samosa Platter", "description": "Four crispy potato samosas with mint and tamarind chutney.", "price": 350, "category": "Starters", "image": "🥟", "isSpecial": false, "isAvailable": false },
+  { "id": "m5", "name": "Garden Salad", "description": "Fresh greens, cherry tomatoes, cucumber and honey mustard.", "price": 400, "category": "Starters", "image": "🥗", "isSpecial": false, "isAvailable": true },
+  { "id": "m6", "name": "Chicken Karahi", "description": "Wok-cooked chicken with tomatoes, ginger and green chillies. Serves two.", "price": 1850, "category": "Mains", "image": "🍛", "isSpecial": true, "isAvailable": true },
+  { "id": "m7", "name": "Beef Burger", "description": "Grilled beef patty, cheddar, caramelised onions, brioche bun.", "price": 950, "category": "Mains", "image": "🍔", "isSpecial": false, "isAvailable": true },
+  { "id": "m8", "name": "Chicken Biryani", "description": "Fragrant basmati rice layered with spiced chicken and raita.", "price": 750, "category": "Mains", "image": "🍚", "isSpecial": false, "isAvailable": true },
+  { "id": "m9", "name": "Margherita Pizza", "description": "Tomato sauce, mozzarella and fresh basil on a thin crust.", "price": 1200, "category": "Mains", "image": "🍕", "isSpecial": false, "isAvailable": true },
+  { "id": "m10", "name": "Grilled Steak", "description": "250g sirloin with pepper sauce, mash and sauteed vegetables.", "price": 2400, "category": "Mains", "image": "🥩", "isSpecial": false, "isAvailable": false },
+  { "id": "m11", "name": "Alfredo Pasta", "description": "Fettuccine in a creamy parmesan sauce with grilled chicken.", "price": 1100, "category": "Mains", "image": "🍝", "isSpecial": false, "isAvailable": true },
+  { "id": "m12", "name": "Chocolate Lava Cake", "description": "Warm molten chocolate cake with vanilla ice cream.", "price": 650, "category": "Thrusday", "image": "🍫", "isSpecial": true, "isAvailable": true },
+  { "id": "m13", "name": "Gulab Jamun", "description": "Three soft milk dumplings soaked in rose syrup.", "price": 300, "category": "Thrusday", "image": "🍡", "isSpecial": false, "isAvailable": true },
+  { "id": "m14", "name": "New York Cheesecake", "description": "Baked cheesecake with a strawberry compote.", "price": 700, "category": "Thrusday", "image": "🍰", "isSpecial": false, "isAvailable": true },
+  { "id": "m15", "name": "Kulfi Falooda", "description": "Traditional pistachio kulfi with vermicelli and basil seeds.", "price": 450, "category": "Thrusday", "image": "🍨", "isSpecial": false, "isAvailable": true },
+  { "id": "m16", "name": "Mint Margarita", "description": "Blended mint, lemon and soda. Refreshing and ice cold.", "price": 350, "category": "Drinks", "image": "🍹", "isSpecial": false, "isAvailable": true },
+  { "id": "m17", "name": "Doodh Patti Chai", "description": "Strong milky tea brewed with cardamom.", "price": 200, "category": "Drinks", "image": "☕", "isSpecial": true, "isAvailable": true },
+  { "id": "m18", "name": "Mango Smoothie", "description": "Seasonal mangoes blended with yoghurt and honey.", "price": 480, "category": "Drinks", "image": "🥭", "isSpecial": false, "isAvailable": true },
+  { "id": "m19", "name": "Fresh Lime Soda", "description": "Sweet or salty, made with fresh limes.", "price": 250, "category": "Drinks", "image": "🍋", "isSpecial": false, "isAvailable": true }
+]

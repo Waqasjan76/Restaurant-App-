@@ -15,6 +15,7 @@ export default function ReservationScreen({ navigation }) {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const booking = useReservation(user);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -30,12 +31,17 @@ export default function ReservationScreen({ navigation }) {
     if (booking.validate()) setConfirmVisible(true);
   };
 
-  const confirm = () => {
-    const created = booking.createReservation();
-    setConfirmVisible(false);
-    if (created) {
-      showAlert('Table requested', `Your booking for ${created.time} is pending manager approval.`);
-      navigation.navigate('MyReservations');
+  const confirm = async () => {
+    setIsSaving(true);
+    try {
+      const created = await booking.createReservation();
+      if (created) {
+        setConfirmVisible(false);
+        showAlert('Table requested', `Your booking for ${created.time} is pending manager approval.`);
+        navigation.navigate('MyReservations');
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -184,8 +190,12 @@ export default function ReservationScreen({ navigation }) {
               <Pressable style={styles.secondaryButton} onPress={() => setConfirmVisible(false)}>
                 <Text style={styles.secondaryText}>Edit</Text>
               </Pressable>
-              <Pressable style={[styles.primaryButton, styles.modalConfirm]} onPress={confirm}>
-                <Text style={styles.primaryText}>Confirm</Text>
+              <Pressable
+                style={[styles.primaryButton, styles.modalConfirm]}
+                onPress={confirm}
+                disabled={isSaving}
+              >
+                <Text style={styles.primaryText}>{isSaving ? 'Saving…' : 'Confirm'}</Text>
               </Pressable>
             </View>
           </View>

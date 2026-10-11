@@ -137,10 +137,12 @@ export default function useReservation(user) {
       status: 'Pending',
       createdAt: Date.now(),
     };
-    dispatch({ type: RESERVATION_ACTIONS.ADD, payload: reservation });
-    setTime(null);
-    setTableId(null);
-    return reservation;
+    return dispatch({ type: RESERVATION_ACTIONS.ADD, payload: reservation }).then((saved) => {
+      if (!saved) return null;
+      setTime(null);
+      setTableId(null);
+      return reservation;
+    });
   };
 
   const cancelReservation = (id) => dispatch({ type: RESERVATION_ACTIONS.CANCEL, payload: id });

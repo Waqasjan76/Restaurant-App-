@@ -15,7 +15,7 @@ const RootStack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const { isDark, colors, isHydrated: themeReady } = useTheme();
-  const { isHydrated: accountsReady } = useAuth();
+  const { isHydrated: authReady } = useAuth();
   const { isHydrated: menuReady } = useMenu();
   const { isHydrated: ordersReady } = useOrders();
   const { isHydrated: reservationsReady } = useReservations();
@@ -38,7 +38,7 @@ export default function AppNavigator() {
   }, [isDark, colors]);
 
   // Wait until everything saved in AsyncStorage has been loaded.
-  if (!(themeReady && accountsReady && menuReady && ordersReady && reservationsReady)) {
+  if (!(themeReady && authReady && menuReady && ordersReady && reservationsReady)) {
     return <LoadingScreen />;
   }
 

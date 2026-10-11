@@ -2,7 +2,7 @@
 
 A frontend-only restaurant app built with **React Native (Expo)**. Diners can browse the menu, order for dine-in or takeaway, book a table and watch their order being prepared. Managers get a dashboard to run incoming orders, reservations and the menu.
 
-> Fall 2026 · Assignment 1. Everything runs on the device: **no backend, no external API, no state management library.** Data comes from local mock files, lives in React state (Context + `useReducer`) and is persisted with AsyncStorage.
+> Fall 2026 · Assignment 1. The Expo app uses React Context and `useReducer`; authentication, menu, orders and reservations are served by an Express API backed by MongoDB. Theme and cart state remain local, and AsyncStorage caches app data.
 
 <p align="center">
   <img src="A1/screenshots/q3-signup-success-menu.png" width="200" alt="Menu">
@@ -28,8 +28,8 @@ A frontend-only restaurant app built with **React Native (Expo)**. Diners can br
 ## Features
 
 **Customer**
-- Login and signup with validation (email format; password of 8+ characters with a digit; matching confirm password; role selector)
-- Menu with category chips, "Daily Special" badges, sold-out items greyed out, pull to refresh, and a simulated loading, error and Retry flow
+- Login and signup with validation (email format; password of 8+ characters with a digit; matching confirm password; manager invite code)
+- Menu with category chips, "Daily Special" badges, sold-out items greyed out, pull to refresh, and API-backed loading, error and Retry flow
 - Debounced search, recent searches, sort by price or name, favourites, and a "Back to top" button
 - Cart with quantity stepper, per-item special instructions, promo codes and a live tab badge
 - Order summary with subtotal, promo discount, 5% service charge and 15% sales tax
@@ -44,7 +44,7 @@ A frontend-only restaurant app built with **React Native (Expo)**. Diners can br
 - **Reservations:** accept or decline
 - **Menu Management:** add items, edit prices, toggle availability. Changes appear on the customer menu immediately
 
-**Everywhere:** bottom tabs with nested stacks, safe-area handling, a light/dark theme on every screen, AsyncStorage persistence and a loading screen until saved data is restored.
+**Everywhere:** bottom tabs with nested stacks, safe-area handling, a light/dark theme on every screen, AsyncStorage caching and a loading screen until saved data is restored.
 
 ## Deliverables
 
@@ -81,9 +81,30 @@ When the Expo dev server starts:
 | **iOS simulator** (macOS) | Press **`i`** (or run `npm run ios`). |
 | **Web browser** | Press **`w`** (or run `npm run web`). |
 
+### Start the backend
+
+The backend dependencies are declared in `backend/package.json`. Install them if needed, then configure MongoDB and a JWT signing secret:
+
+```bash
+cd backend
+npm install
+```
+
+For a no-credentials local demo, `backend/.env` can contain `USE_MEMORY_DB=true`. This uses a temporary in-memory MongoDB and the backend generates a throwaway signing secret; menu and demo accounts are seeded automatically. Orders, accounts, menu edits, and reservations are discarded whenever the backend stops.
+
+For persistent storage instead, copy `backend/.env.example` to `backend/.env`, set `USE_MEMORY_DB=false`, set `MONGODB_URI` to a working MongoDB connection string, and set a private `JWT_SECRET` of at least 32 characters. Never push `.env`. The server seeds the menu and three demo accounts on first startup. Run it with:
+
+```bash
+npm run dev
+```
+
+In a second terminal, start Expo from the project root. The default API URL is `http://localhost:5000/api` (use `http://10.0.2.2:5000/api` for the standard Android emulator). For a physical phone, create a project-root `.env` from `.env.example` and set `EXPO_PUBLIC_API_URL` to `http://<computer-LAN-IP>:5000/api`; keep both devices on the same network and restart Expo after changing the URL. Manager sign-up requires `MANAGER_SIGNUP_CODE` to be set in `backend/.env`; otherwise use the seeded manager demo account.
+
+The login and profile screens show a live backend/database connection status; tap the indicator to recheck immediately. The label identifies the in-memory demo database and warns that it resets on restart.
+
 Other scripts: `npm test` runs the Jest unit tests. `npx expo export -p web` builds a static web version into `dist/`.
 
-> Saved data (orders, reservations, menu edits, new accounts, theme) survives restarts. To start fresh, clear the app's storage (Android: Settings › Apps › Expo Go › Clear storage; web: clear site data).
+> Orders, reservations, menu edits and accounts are stored in MongoDB. Theme and cart state are local; AsyncStorage caches menu, order and reservation data.
 
 ## Demo accounts
 
@@ -94,7 +115,6 @@ Other scripts: `npm test` runs the Jest unit tests. `npx expo export -p web` bui
 | Customer (2nd) | `sara@demo.com` | `Sara12345` |
 
 **Promo codes:** `WELCOME10` (10%), `STUDENT15` (15%), `FEAST20` (20%).
-**Reservation demo:** tomorrow 19:00 is fully booked (the slot is shown disabled), and tomorrow 20:00 only has small tables left (disabled for parties above 4).
 **Phone format:** `03XX-XXXXXXX`, e.g. `0300-1234567`.
 
 ## Hooks used per screen

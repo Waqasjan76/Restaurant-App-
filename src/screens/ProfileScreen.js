@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-nat
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { resetRoot } from '../navigation/navigationRef';
+import BackendStatus from '../components/BackendStatus';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -35,6 +36,8 @@ export default function ProfileScreen() {
           <Text style={styles.roleText}>{user.role === 'manager' ? 'Restaurant Manager' : 'Customer'}</Text>
         </View>
       </View>
+
+      <BackendStatus />
 
       <View style={styles.card}>
         <Row label="Full name" value={user.fullName} styles={styles} />

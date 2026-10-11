@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,12 +8,14 @@ import { mockTables } from '../data/tables';
 import { useTheme } from '../context/ThemeContext';
 import { formatPrice } from '../data/menu';
 import { SALES_TAX_RATE, SERVICE_CHARGE_RATE, calculateTotals } from '../utils/pricing';
+import { showAlert } from '../utils/alert';
 
 export default function OrderSummaryScreen({ navigation, route }) {
   const { orderType = 'dine-in', tableId = null, pickupTime = null } = route.params ?? {};
   const { state, dispatch } = useCart();
   const { user } = useAuth();
   const { placeOrder } = useOrders();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { items, discountPercent, promoCode } = state;
@@ -24,16 +26,22 @@ export default function OrderSummaryScreen({ navigation, route }) {
 
   const table = mockTables.find((t) => t.id === tableId);
 
-  const handlePlaceOrder = () => {
-    const order = placeOrder({ user, items, totals, type: orderType, tableId, pickupTime });
-    dispatch({ type: CART_ACTIONS.CLEAR_CART });
-    navigation.popToTop();
-    // Open tracking inside the Orders tab, with My Orders underneath it.
-    navigation.navigate('OrdersTab', {
-      screen: 'OrderTracking',
-      params: { orderId: order.id },
-      initial: false,
-    });
+  const handlePlaceOrder = async () => {
+    setIsSubmitting(true);
+    try {
+      const order = await placeOrder({ user, items, totals, type: orderType, tableId, pickupTime });
+      dispatch({ type: CART_ACTIONS.CLEAR_CART });
+      navigation.popToTop();
+      navigation.navigate('OrdersTab', {
+        screen: 'OrderTracking',
+        params: { orderId: order.id },
+        initial: false,
+      });
+    } catch (error) {
+      showAlert('Could not place order', error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0) {
@@ -93,8 +101,10 @@ export default function OrderSummaryScreen({ navigation, route }) {
       </View>
 
       <Text style={styles.payNote}>Payment is made at the counter. No card details are needed.</Text>
-      <Pressable style={styles.placeButton} onPress={handlePlaceOrder}>
-        <Text style={styles.placeText}>Place order · {formatPrice(totals.grandTotal)}</Text>
+      <Pressable style={styles.placeButton} onPress={handlePlaceOrder} disabled={isSubmitting}>
+        <Text style={styles.placeText}>
+          {isSubmitting ? 'Placing order…' : `Place order · ${formatPrice(totals.grandTotal)}`}
+        </Text>
       </Pressable>
     </ScrollView>
   );

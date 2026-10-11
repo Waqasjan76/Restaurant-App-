@@ -23,7 +23,7 @@ export const lightColors = {
   tiles: {
     Starters: '#fde2c8',
     Mains: '#fbd0c4',
-    Desserts: '#f6d3e6',
+    Thrusday: '#f6d3e6',
     Drinks: '#cfe8f5',
   },
 };
@@ -50,7 +50,7 @@ export const darkColors = {
   tiles: {
     Starters: '#4a3524',
     Mains: '#4d2b25',
-    Desserts: '#47293a',
+    Thrusday: '#47293a',
     Drinks: '#223c4a',
   },
 };

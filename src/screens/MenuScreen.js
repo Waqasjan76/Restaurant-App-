@@ -81,17 +81,21 @@ export default function MenuScreen({ navigation }) {
     else setIsLoading(true);
     setError(null);
 
-    const request = fetchMenu(menu);
+    const request = fetchMenu();
     requestRef.current = request;
     request.promise
       .then((items) => {
         hasLoadedRef.current = true;
         setMenuItems(items);
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => {
+        if (e.name !== 'AbortError') setError(e.message);
+      })
       .finally(() => {
-        setIsLoading(false);
-        setRefreshing(false);
+        if (requestRef.current === request) {
+          setIsLoading(false);
+          setRefreshing(false);
+        }
       });
   };
 
@@ -99,7 +103,10 @@ export default function MenuScreen({ navigation }) {
   // pending timer so no state update happens after the screen unmounts.
   useEffect(() => {
     loadMenu();
-    return () => requestRef.current?.cancel();
+    return () => {
+      requestRef.current?.cancel();
+      requestRef.current = null;
+    };
   }, []);
 
   // Manager edits (price, availability, new items) reach an already loaded

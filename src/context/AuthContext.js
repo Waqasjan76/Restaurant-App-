@@ -1,22 +1,31 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { users as seedUsers } from '../data/users';
-import { usePersistedState } from '../hooks/usePersistedReducer';
+import { api } from '../services/api';
 
 const AuthContext = createContext(undefined);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  // Registered accounts (mock). Signup appends here instead of a server, and
-  // the list is kept in AsyncStorage so new accounts survive a restart.
-  const [accounts, setAccounts, isHydrated] = usePersistedState('@restaurant/accounts', seedUsers);
 
-  const login = useCallback((loggedInUser) => setUser(loggedInUser), []);
-  const logout = useCallback(() => setUser(null), []);
-  const register = useCallback((account) => setAccounts((prev) => [...prev, account]), [setAccounts]);
+  const login = useCallback(async (email, password) => {
+    const authenticatedUser = await api.login({ email, password });
+    setUser(authenticatedUser);
+    return authenticatedUser;
+  }, []);
+
+  const register = useCallback(async (account) => {
+    const createdUser = await api.register(account);
+    setUser(createdUser);
+    return createdUser;
+  }, []);
+
+  const logout = useCallback(() => {
+    api.logout();
+    setUser(null);
+  }, []);
 
   const value = useMemo(
-    () => ({ user, accounts, login, logout, register, isHydrated }),
-    [user, accounts, login, logout, register, isHydrated]
+    () => ({ user, login, logout, register, isHydrated: true }),
+    [user, login, logout, register]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
