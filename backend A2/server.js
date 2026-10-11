@@ -383,7 +383,7 @@ async function startServer() {
       throw new Error('USE_MEMORY_DB is for local demos only and cannot run in production.');
     }
     const { MongoMemoryServer } = require('mongodb-memory-server');
-    const memoryServer = await MongoMemoryServer.create();
+    const memoryServer = await MongoMemoryServer.create({ instance: { startupTimeout: 60000 } });
     await mongoose.connect(memoryServer.getUri('restaurant_app_demo'));
     databaseMode = 'in-memory demo';
     if (!process.env.JWT_SECRET) {

@@ -83,22 +83,22 @@ When the Expo dev server starts:
 
 ### Start the backend
 
-The backend dependencies are declared in `backend/package.json`. Install them if needed, then configure MongoDB and a JWT signing secret:
+The backend dependencies are declared in `backend A2/package.json`. Install them if needed, then configure MongoDB and a JWT signing secret:
 
 ```bash
-cd backend
+cd "backend A2"
 npm install
 ```
 
-For a no-credentials local demo, `backend/.env` can contain `USE_MEMORY_DB=true`. This uses a temporary in-memory MongoDB and the backend generates a throwaway signing secret; menu and demo accounts are seeded automatically. Orders, accounts, menu edits, and reservations are discarded whenever the backend stops.
+For a no-credentials local demo, `backend A2/.env` can contain `USE_MEMORY_DB=true`. This uses a temporary in-memory MongoDB and the backend generates a throwaway signing secret; menu and demo accounts are seeded automatically. Orders, accounts, menu edits, and reservations are discarded whenever the backend stops.
 
-For persistent storage instead, copy `backend/.env.example` to `backend/.env`, set `USE_MEMORY_DB=false`, set `MONGODB_URI` to a working MongoDB connection string, and set a private `JWT_SECRET` of at least 32 characters. Never push `.env`. The server seeds the menu and three demo accounts on first startup. Run it with:
+For persistent storage instead, copy `backend A2/.env.example` to `backend A2/.env`, set `USE_MEMORY_DB=false`, set `MONGODB_URI` to a working MongoDB connection string, and set a private `JWT_SECRET` of at least 32 characters. Never push `.env`. The server seeds the menu and three demo accounts on first startup. Run it with:
 
 ```bash
 npm run dev
 ```
 
-In a second terminal, start Expo from the project root. The default API URL is `http://localhost:5000/api` (use `http://10.0.2.2:5000/api` for the standard Android emulator). For a physical phone, create a project-root `.env` from `.env.example` and set `EXPO_PUBLIC_API_URL` to `http://<computer-LAN-IP>:5000/api`; keep both devices on the same network and restart Expo after changing the URL. Manager sign-up requires `MANAGER_SIGNUP_CODE` to be set in `backend/.env`; otherwise use the seeded manager demo account.
+In a second terminal, start Expo from the project root. The default API URL is `http://localhost:5000/api` (use `http://10.0.2.2:5000/api` for the standard Android emulator). For a physical phone, create a project-root `.env` from `.env.example` and set `EXPO_PUBLIC_API_URL` to `http://<computer-LAN-IP>:5000/api`; keep both devices on the same network and restart Expo after changing the URL. Manager sign-up requires `MANAGER_SIGNUP_CODE` to be set in `backend A2/.env`; otherwise use the seeded manager demo account.
 
 The login and profile screens show a live backend/database connection status; tap the indicator to recheck immediately. The label identifies the in-memory demo database and warns that it resets on restart.
 
