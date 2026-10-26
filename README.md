@@ -1,4 +1,15 @@
-# Restaurant App: Android APK (testing build)
+# Restaurant App: Android APKs (testing builds)
+
+There are two APKs:
+
+| File | Data | Needs |
+|------|------|-------|
+| [RestaurantApp-Database.apk](https://github.com/Waqasjan76/Restaurant-App-/raw/apk/RestaurantApp-Database.apk) | MongoDB backend (Assignment 2, latest `main`) | The test backend must be running on the developer PC with its tunnel open |
+| [RestaurantApp.apk](https://github.com/Waqasjan76/Restaurant-App-/raw/apk/RestaurantApp.apk) | Offline demo data on the phone (Assignment 1) | Nothing |
+
+The database APK talks to `https://dodge-teaches-per-inc.trycloudflare.com/api`, a temporary test tunnel. If the backend or tunnel is stopped, or the tunnel address changes, that APK shows "Cannot reach the restaurant API" until it is rebuilt.
+
+## Offline APK
 
 **Download:** [RestaurantApp.apk](https://github.com/Waqasjan76/Restaurant-App-/raw/apk/RestaurantApp.apk) (43.7 MB)
 
