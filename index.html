@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Restaurant App: Download for Android</title>
+<meta name="description" content="Browse the menu, order for dine-in or takeaway, book a table and track your order. Download the Restaurant App for Android.">
+<meta property="og:title" content="Restaurant App">
+<meta property="og:description" content="Order food, book a table and track your order. Download for Android.">
+<meta property="og:image" content="screens/q3-signup-success-menu.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+<style>
+  :root {
+    --bg: #fffaf5; --surface: #ffffff; --text: #1f1f1f; --muted: #626262;
+    --line: #efe4d8; --accent: #e4572e; --accent-ink: #ffffff; --soft: #fdeee6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121212; --surface: #1c1c1e; --text: #f2f2f2; --muted: #a3a3a3;
+            --line: #2c2c2e; --accent: #ff7a50; --accent-ink: #1a0d08; --soft: #2a1a14; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.5; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 56px 0 32px; }
+  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .icon { width: 72px; height: 72px; border-radius: 18px; display: grid; place-items: center; font-size: 40px;
+          background: linear-gradient(135deg, #ff8a5c, #e4572e); box-shadow: 0 8px 24px rgba(228,87,46,.3); }
+  .brand small { display: block; color: var(--muted); font-size: 14px; }
+  h1 { font-size: clamp(32px, 5vw, 48px); line-height: 1.1; margin: 0 0 14px; letter-spacing: -0.02em; }
+  .lead { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 34em; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 12px;
+         font-weight: 700; text-decoration: none; font-size: 16px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-secondary { border: 1px solid var(--line); color: var(--text); background: var(--surface); }
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .meta { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .phone { justify-self: center; width: min(300px, 80vw); border-radius: 34px; padding: 10px;
+           background: #111; box-shadow: 0 30px 60px rgba(0,0,0,.25); }
+  .phone img { width: 100%; display: block; border-radius: 26px; }
+  section { padding: 40px 0; }
+  h2 { font-size: 26px; margin: 0 0 18px; letter-spacing: -0.01em; }
+  .shots { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+  .shots figure { margin: 0; flex: 0 0 200px; scroll-snap-align: start; }
+  .shots img { width: 200px; border-radius: 16px; border: 1px solid var(--line); display: block; }
+  .shots figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; text-align: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .emoji { font-size: 22px; display: block; margin-bottom: 8px; }
+  ol.steps { margin: 0; padding-left: 20px; }
+  ol.steps li { margin-bottom: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  td, th { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  code { background: var(--soft); padding: 2px 6px; border-radius: 6px; font-size: 14px; }
+  .note { background: var(--soft); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--text); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); margin-top: 24px; }
+  @media (max-width: 760px) {
+    header { padding-top: 32px; }
+    .hero, .two { grid-template-columns: 1fr; }
+    .phone { width: 240px; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="hero">
+    <div>
+      <div class="brand">
+        <div class="icon" aria-hidden="true">🍽️</div>
+        <div><strong>Restaurant App</strong><small>Version 1.0.0 · Android</small></div>
+      </div>
+      <h1>Skip the queue.<br>Order, book and track from your phone.</h1>
+      <p class="lead">Browse today's menu and specials, order for dine-in or takeaway, reserve a table, and watch your food go from the kitchen to your table. Managers run orders, bookings and the menu from one dashboard.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="RestaurantApp.apk" download>⬇ Download for Android</a>
+        <a class="btn btn-secondary" href="RestaurantApp-Database.apk" download>Live server build</a>
+      </div>
+      <p class="meta">APK · 43.7 MB · Android 7.0 or newer · Free</p>
+    </div>
+    <div class="phone"><img src="screens/q3-signup-success-menu.jpg" alt="Restaurant App menu screen"></div>
+  </div>
+</header>
+
+<main>
+  <section class="wrap">
+    <h2>Screenshots</h2>
+    <div class="shots">
+      <figure><img src="screens/q3-signup-success-menu.jpg" alt="Menu" loading="lazy"><figcaption>Menu and daily specials</figcaption></figure>
+      <figure><img src="screens/q7-cart.jpg" alt="Cart" loading="lazy"><figcaption>Cart with promo codes</figcaption></figure>
+      <figure><img src="screens/q10-tracking-preparing.jpg" alt="Order tracking" loading="lazy"><figcaption>Live order tracking</figcaption></figure>
+      <figure><img src="screens/q9-disabled-slot.jpg" alt="Table booking" loading="lazy"><figcaption>Table reservations</figcaption></figure>
+      <figure><img src="screens/q10-dashboard-orders.jpg" alt="Manager dashboard" loading="lazy"><figcaption>Manager dashboard</figcaption></figure>
+      <figure><img src="screens/q6-menu-dark.jpg" alt="Dark mode" loading="lazy"><figcaption>Dark mode</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>What you can do</h2>
+    <div class="grid">
+      <div class="card"><span class="emoji">📋</span><h3>Browse the menu</h3><p>Categories, daily specials, search, sorting and favourites. Sold-out dishes are clearly marked.</p></div>
+      <div class="card"><span class="emoji">🛒</span><h3>Order your way</h3><p>Dine-in at your table or takeaway at a pickup time, with notes like "no onions".</p></div>
+      <div class="card"><span class="emoji">🧾</span><h3>No bill surprises</h3><p>Subtotal, service charge, tax and promo discount, all shown before you confirm.</p></div>
+      <div class="card"><span class="emoji">⏱️</span><h3>Track your order</h3><p>Pending, Preparing, Ready, Served, with a live timer.</p></div>
+      <div class="card"><span class="emoji">📅</span><h3>Book a table</h3><p>Pick a date, time and party size. Full slots are greyed out instantly.</p></div>
+      <div class="card"><span class="emoji">👨‍🍳</span><h3>Manager dashboard</h3><p>Move orders through the kitchen, accept bookings and edit prices or availability.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap two">
+    <div>
+      <h2>Install</h2>
+      <ol class="steps">
+        <li>Tap <strong>Download for Android</strong> on your phone.</li>
+        <li>Open the downloaded <code>RestaurantApp.apk</code>.</li>
+        <li>If Android asks, allow <strong>Install unknown apps</strong> for your browser.</li>
+        <li>Tap <strong>Install</strong>, then open <strong>Restaurant App</strong>.</li>
+      </ol>
+    </div>
+    <div>
+      <h2>Demo accounts</h2>
+      <table>
+        <tr><th>Role</th><th>Email</th><th>Password</th></tr>
+        <tr><td>Customer</td><td>customer@demo.com</td><td>Customer123</td></tr>
+        <tr><td>Manager</td><td>manager@demo.com</td><td>Manager123</td></tr>
+      </table>
+      <p class="meta">Promo codes: <code>WELCOME10</code> <code>STUDENT15</code> <code>FEAST20</code></p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="note">
+      <strong>Which download?</strong> <em>Download for Android</em> works anywhere and keeps its data on the phone.
+      The <em>Live server build</em> saves orders, bookings and menu changes to the restaurant's MongoDB server,
+      so it only works while the test server is online. iPhone version coming later.
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  © 2026 Waqas Jan · <a href="https://github.com/Waqasjan76/Restaurant-App-">Source code on GitHub</a>
+</footer>
+</body>
+</html>
