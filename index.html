@@ -8,7 +8,7 @@
 <meta property="og:title" content="Restaurant App">
 <meta property="og:description" content="Order food, book a table and track your order. Download for Android.">
 <meta property="og:image" content="screens/q3-signup-success-menu.jpg">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+<link rel="icon" href="icon.png">
 <style>
   :root {
     --bg: #fffaf5; --surface: #ffffff; --text: #1f1f1f; --muted: #626262;
@@ -26,8 +26,7 @@
   header { padding: 56px 0 32px; }
   .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
   .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-  .icon { width: 72px; height: 72px; border-radius: 18px; display: grid; place-items: center; font-size: 40px;
-          background: linear-gradient(135deg, #ff8a5c, #e4572e); box-shadow: 0 8px 24px rgba(228,87,46,.3); }
+  .icon { width: 72px; height: 72px; border-radius: 18px; display: block; box-shadow: 0 8px 24px rgba(228,87,46,.3); }
   .brand small { display: block; color: var(--muted); font-size: 14px; }
   h1 { font-size: clamp(32px, 5vw, 48px); line-height: 1.1; margin: 0 0 14px; letter-spacing: -0.02em; }
   .lead { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 34em; }
@@ -73,16 +72,16 @@
   <div class="hero">
     <div>
       <div class="brand">
-        <div class="icon" aria-hidden="true">🍽️</div>
+        <img class="icon" src="icon.png" alt="" aria-hidden="true">
         <div><strong>Restaurant App</strong><small>Version 1.0.0 · Android</small></div>
       </div>
       <h1>Skip the queue.<br>Order, book and track from your phone.</h1>
       <p class="lead">Browse today's menu and specials, order for dine-in or takeaway, reserve a table, and watch your food go from the kitchen to your table. Managers run orders, bookings and the menu from one dashboard.</p>
       <div class="btns">
-        <a class="btn btn-primary" href="RestaurantApp.apk" download>⬇ Download for Android</a>
-        <a class="btn btn-secondary" href="RestaurantApp-Database.apk" download>Live server build</a>
+        <a class="btn btn-primary" href="RestaurantApp-Database.apk" download>⬇ Download for Android</a>
+        <a class="btn btn-secondary" href="RestaurantApp.apk" download>Offline demo build</a>
       </div>
-      <p class="meta">APK · 43.7 MB · Android 7.0 or newer · Free</p>
+      <p class="meta">APK · 61 MB · Android 7.0 or newer · Free</p>
     </div>
     <div class="phone"><img src="screens/q3-signup-success-menu.jpg" alt="Restaurant App menu screen"></div>
   </div>
@@ -136,9 +135,9 @@
 
   <section class="wrap">
     <div class="note">
-      <strong>Which download?</strong> <em>Download for Android</em> works anywhere and keeps its data on the phone.
-      The <em>Live server build</em> saves orders, bookings and menu changes to the restaurant's MongoDB server,
-      so it only works while the test server is online. iPhone version coming later.
+      <strong>Which download?</strong> <em>Download for Android</em> saves orders, bookings and menu changes to the restaurant's
+      online database, so everyone sees the same data (needs internet). The <em>Offline demo build</em> keeps its data on the phone and works without internet.
+      iPhone version coming later.
     </div>
   </section>
 </main>
