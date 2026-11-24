@@ -4,6 +4,8 @@ A frontend-only restaurant app built with **React Native (Expo)**. Diners can br
 
 > Fall 2026 · Assignment 1. The Expo app uses React Context and `useReducer`; authentication, menu, orders and reservations are served by an Express API backed by MongoDB. Theme and cart state remain local, and AsyncStorage caches app data.
 
+## Demo video 
+Youtube link:  https://youtube.com/shorts/PbGP8zjriPM?si=ocsp5WYfOQkfmV7F
 <p align="center">
   <img src="A1/screenshots/q3-signup-success-menu.png" width="200" alt="Menu">
   <img src="A1/screenshots/q7-cart.png" width="200" alt="Cart">
